@@ -149,26 +149,10 @@
       0% { transform: translateY(0) rotate(0deg); opacity: 1; }
       100% { transform: translateY(105vh) rotate(720deg); opacity: 0.2; }
     }
-
-    .snake { position:absolute; width:min(65vw,680px); height:150px; opacity:.12; animation:snakeTravel 24s linear infinite; }
-    .snake:nth-child(2) { top:55%; opacity:.075; animation-duration:31s; animation-delay:-13s; transform:scaleY(-1); }
-    .snake:nth-child(3) { top:78%; opacity:.09; animation-duration:27s; animation-delay:-21s; }
-    @keyframes snakeTravel { from { left:-75%; } to { left:110%; } }
-    .countdown-overlay { position:fixed; inset:0; z-index:80; display:grid; place-items:center; pointer-events:none; }
-    .countdown-overlay[hidden] { display:none; }
-    .countdown-number { color:#fff; font:900 clamp(100px, 25vw, 240px)/1 Montserrat,system-ui,sans-serif; text-shadow:0 8px 0 #ed2d78, 0 16px 36px #17043f; animation:countPop .85s ease-out both; }
-    @keyframes countPop { 0% {opacity:0;transform:scale(.35) rotate(-12deg)} 35% {opacity:1;transform:scale(1.2) rotate(5deg)} 75% {opacity:1;transform:scale(1)} 100% {opacity:0;transform:scale(1.12)} }
-    @media (prefers-reduced-motion:reduce) { .snake,.bg-shape {animation:none} .countdown-number {animation:none} }
   </style>
 </head>
 <body class="antialiased selection:bg-amber-300 selection:text-purple-950">
 
-  <div class="bg-shapes" aria-hidden="true">
-    <svg class="snake" style="top:15%" viewBox="0 0 600 150" fill="none"><path d="M-20 75 C40 -5 90 -5 150 75 S260 155 320 75 S430 -5 490 75 S570 155 630 75" stroke="#d7b5ff" stroke-width="22" stroke-linecap="round"/><circle cx="490" cy="75" r="11" fill="#fff"/></svg>
-    <svg class="snake" viewBox="0 0 600 150" fill="none"><path d="M-20 75 C40 -5 90 -5 150 75 S260 155 320 75 S430 -5 490 75 S570 155 630 75" stroke="#98f1e4" stroke-width="18" stroke-linecap="round"/></svg>
-    <svg class="snake" viewBox="0 0 600 150" fill="none"><path d="M-20 75 C40 -5 90 -5 150 75 S260 155 320 75 S430 -5 490 75 S570 155 630 75" stroke="#ffc47a" stroke-width="16" stroke-linecap="round"/></svg>
-  </div>
-  <div id="countdown-overlay" class="countdown-overlay" hidden aria-hidden="true"><span id="countdown-number" class="countdown-number"></span></div>
   <!-- Arka Plan Geometrik Süslemeleri -->
   <div class="bg-shapes" aria-hidden="true">
     <svg class="bg-shape w-48 h-48 top-10 left-8" viewBox="0 0 100 100" fill="white">
@@ -195,7 +179,7 @@
         Oda: —
       </span>
       <span id="header-pool-pill" class="hidden sm:inline-block text-purple-200 text-xs font-semibold bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">
-        100 Soruluk Havuz • Çok Oyunculu
+        <span id="header-pool-count">0</span> Soruluk Havuz • Çok Oyunculu
       </span>
     </div>
 
@@ -279,6 +263,15 @@
 
         <!-- AYARLAR ALANI (Solo ve Grup Kur modlarında görünür) -->
         <div id="game-settings-box">
+          <div class="mb-5">
+            <label for="question-category" class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">Soru kategorisi</label>
+            <select id="question-category" onchange="changeCategory()" class="w-full rounded-xl border-2 border-slate-300 bg-slate-100 p-3 font-bold">
+              <option value="manual">Elle eklenen sorular</option>
+              <option value="games">Oyunlar • 50 soru</option>
+              <option value="health">Sağlık • 50 soru</option>
+              <option value="computer">Bilgisayar • 50 soru</option>
+            </select>
+          </div>
           <!-- Süre Seçimi -->
           <div class="mb-5">
             <span class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">
@@ -300,26 +293,46 @@
             </div>
           </div>
 
-          <!-- Soru Sayısı Seçimi -->
           <div class="mb-5">
-            <span class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">
-              Turdaki Soru Sayısı
-            </span>
-            <div class="grid grid-cols-4 gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200" id="qcount-selector">
-              <button type="button" data-qcount="10" onclick="selectQCount(10)" class="qcount-pill py-2 px-2 rounded-xl font-display font-extrabold text-xs sm:text-sm text-slate-600 transition cursor-pointer">
-                10 Soru
-              </button>
-              <button type="button" data-qcount="20" onclick="selectQCount(20)" class="qcount-pill active py-2 px-2 rounded-xl font-display font-extrabold text-xs sm:text-sm text-slate-600 transition cursor-pointer">
-                20 Soru
-              </button>
-              <button type="button" data-qcount="30" onclick="selectQCount(30)" class="qcount-pill py-2 px-2 rounded-xl font-display font-extrabold text-xs sm:text-sm text-slate-600 transition cursor-pointer">
-                30 Soru
-              </button>
-              <button type="button" data-qcount="50" onclick="selectQCount(50)" class="qcount-pill py-2 px-2 rounded-xl font-display font-extrabold text-xs sm:text-sm text-slate-600 transition cursor-pointer">
-                50 Soru
-              </button>
-            </div>
+            <label for="question-count" class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">Turdaki Soru Sayısı</label>
+            <input id="question-count" type="number" min="1" value="1" class="w-full bg-slate-100 border-2 border-slate-300 rounded-xl px-4 py-3 font-bold" onchange="selectQCount(this.value)" />
+            <p class="text-xs text-slate-500 mt-1">En fazla havuzdaki soru sayısı kadar soru seçebilirsiniz.</p>
           </div>
+          <details id="host-game-modes" class="hidden mb-5 rounded-2xl border-2 border-purple-100 bg-purple-50 p-4">
+            <summary class="font-display font-extrabold text-purple-900 cursor-pointer">🎮 Oyun Modları</summary>
+            <div class="mt-4 space-y-3">
+              <label for="advance-mode" class="block text-sm font-bold">Sorular arası geçiş</label>
+              <select id="advance-mode" onchange="updateGameMode()" class="w-full rounded-xl border border-slate-300 p-3">
+                <option value="manual">Kurucu geçirsin</option>
+                <option value="auto">Otomatik geçiş</option>
+              </select>
+              <div id="advance-delay-box" class="hidden">
+                <label for="advance-delay" class="block text-sm font-bold mb-1">Sorular arası bekleme süresi (saniye)</label>
+                <input id="advance-delay" type="number" min="1" max="120" value="5" class="w-full rounded-xl border border-slate-300 p-3" onchange="updateGameMode()" />
+                <p class="text-xs text-slate-500 mt-2">Tüm oyuncular cevapladıktan sonra seçilen süre kadar beklenir.</p>
+              </div>
+            </div>
+          </details>
+
+          <details class="mb-5 rounded-2xl border-2 border-purple-100 bg-purple-50 p-4" open>
+            <summary class="font-display font-extrabold text-purple-900 cursor-pointer">✍️ Soru Ekle ve Yönet</summary>
+            <form id="question-form" class="mt-4 space-y-3">
+              <label class="block text-sm font-bold">Soru <textarea id="new-question" required rows="2" class="mt-1 w-full rounded-xl border border-slate-300 p-3 font-normal" placeholder="Sorunuzu yazın"></textarea></label>
+              <div class="grid gap-2 sm:grid-cols-2">
+                <label class="text-sm font-bold">A şıkkı <input class="question-option mt-1 w-full rounded-xl border border-slate-300 p-3 font-normal" required /></label>
+                <label class="text-sm font-bold">B şıkkı <input class="question-option mt-1 w-full rounded-xl border border-slate-300 p-3 font-normal" required /></label>
+                <label class="text-sm font-bold">C şıkkı <input class="question-option mt-1 w-full rounded-xl border border-slate-300 p-3 font-normal" placeholder="İsteğe bağlı" /></label>
+                <label class="text-sm font-bold">D şıkkı <input class="question-option mt-1 w-full rounded-xl border border-slate-300 p-3 font-normal" placeholder="İsteğe bağlı" /></label>
+                <label class="text-sm font-bold">E şıkkı <input class="question-option mt-1 w-full rounded-xl border border-slate-300 p-3 font-normal" placeholder="İsteğe bağlı" /></label>
+              </div>
+              <label class="block text-sm font-bold">Doğru cevap <select id="new-answer" class="mt-1 w-full rounded-xl border border-slate-300 p-3 font-normal"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option><option value="4">E</option></select></label>
+              <label class="block text-sm font-bold">Açıklama (isteğe bağlı) <textarea id="new-explanation" rows="2" class="mt-1 w-full rounded-xl border border-slate-300 p-3 font-normal"></textarea></label>
+              <p id="question-form-error" role="alert" class="hidden text-sm font-bold text-rose-700"></p>
+              <button type="submit" class="w-full bg-purple-800 hover:bg-purple-900 text-white font-bold rounded-xl px-4 py-3">Soruyu Kaydet</button>
+            </form>
+            <p class="text-xs text-slate-500 mt-3">Sorular bu tarayıcıda saklanır. Grup oyununda kurucunun soruları kullanılır.</p>
+            <div id="question-list" class="mt-3 space-y-2"></div>
+          </details>
         </div>
 
         <!-- Hata / Durum Mesajı -->
@@ -332,13 +345,13 @@
           onclick="handleLobbyAction()"
           class="w-full bg-[#26890c] hover:bg-[#2ea30f] active:translate-y-1 text-white font-display font-black text-base sm:text-xl py-4 px-6 rounded-2xl shadow-[0_6px_0_#185907] transition cursor-pointer flex items-center justify-center gap-3"
         >
-          <span id="btn-lobby-action-text">OYUNA BAŞLA (Rastgele 20 Soru)</span>
+          <span id="btn-lobby-action-text">OYUNA BAŞLA</span>
           <span id="btn-lobby-action-icon" class="text-2xl">🚀</span>
         </button>
 
         <!-- Alt Bilgi -->
         <div class="mt-4 flex items-center justify-between text-xs text-slate-500 font-medium px-1">
-          <span>📚 Havuz: 100 Soru (1–7. Hafta)</span>
+          <span id="pool-count">📚 Havuz: 0 Soru</span>
           <span id="best-score-badge">🏆 En Yüksek: 0 Puan</span>
         </div>
       </div>
@@ -472,7 +485,7 @@
             Sonraki Soru →
           </button>
           <div id="guest-next-wait" class="hidden shrink-0 bg-black/25 text-white font-bold text-xs sm:text-sm px-4 py-3 rounded-xl text-center">
-            ⏳ Diğer oyuncuların cevapları bekleniyor...
+            ⏳ Kurucunun sonraki soruya geçmesi bekleniyor...
           </div>
         </div>
       </div>
@@ -679,1410 +692,14 @@
 
   <script>
     // =========================================================================
-    // 1. TAM 100 SORULUK BVA 1109 İŞ SAĞLIĞI VE GÜVENLİĞİ SORU HAVUZU
-    // =========================================================================
-    const QUESTIONS = [
-      {
-        id: 1,
-        week: "1. Hafta",
-        q: "Aşağıdakilerden hangisi ilk yardımın tanımında yer alan özelliklerden biri DEĞİLDİR?",
-        options: [
-          "Mevcut araç ve gereçlerle yapılması",
-          "Sağlık görevlilerinin yardımı sağlanıncaya kadar sürmesi",
-          "Tıbbi araç-gereç ve ilaç kullanılarak yapılan tedavi olması",
-          "Hayatı kurtarmak ya da durumun kötüleşmesini önlemek amacı taşıması",
-          "Olay yerinde yapılması"
-        ],
-        answer: 2,
-        exp: "Tıbbi araç-gereç ve ilaç kullanılarak yapılan müdahale ilk yardım değil, acil tedavidir."
-      },
-      {
-        id: 2,
-        week: "1. Hafta",
-        q: "Aşağıdakilerden hangisi ilk yardımın amaçlarından biri DEĞİLDİR?",
-        options: [
-          "Kesin tanı koyup ilaç tedavisini başlatmak",
-          "Hayatı kurtarmak",
-          "İyileşmeyi kolaylaştırmak",
-          "Durumun kötüleşmesini önlemek",
-          "Ağrıyı azaltıp psikolojik destek sağlamak"
-        ],
-        answer: 0,
-        exp: "Kesin tanı koymak ve ilaç tedavisi başlatmak sağlık personelinin görevidir."
-      },
-      {
-        id: 3,
-        week: "1. Hafta",
-        q: "İlk yardımcının 5 altın kuralından İLKİ hangisidir?",
-        options: [
-          "Yaralı sayısını belirlemek",
-          "112'yi aramak",
-          "Yaralıyı hemen güvenli bir yere taşımak",
-          "Kendi güvenliğini sağlamak",
-          "Kurtarıcı nefes vermek"
-        ],
-        answer: 3,
-        exp: "İlk yardımcının ilk altın kuralı önce kendi ve çevre güvenliğini sağlamaktır."
-      },
-      {
-        id: 4,
-        week: "1. Hafta",
-        q: "Beynin oksijensiz kaldığında hasar görmeye başladığı kabul edilen süre (oksijensiz kalma sınırı) yaklaşık kaç dakikadır?",
-        options: [
-          "1 dakika",
-          "2 dakika",
-          "4 dakika",
-          "8 dakika",
-          "10 dakika"
-        ],
-        answer: 2,
-        exp: "Beynin oksijensiz kalma sınırı yaklaşık 4 dakikadır."
-      },
-      {
-        id: 5,
-        week: "1. Hafta",
-        q: "Türkiye'de tüm acil servislere ulaşılan tek acil çağrı numarası hangisidir?",
-        options: [
-          "110",
-          "112",
-          "155",
-          "156",
-          "184"
-        ],
-        answer: 1,
-        exp: "Türkiye'de tüm acil yardım birimlerine 112 tek acil çağrı numarası üzerinden ulaşılır."
-      },
-      {
-        id: 6,
-        week: "1. Hafta",
-        q: "ABC algoritmasında \"A\" harfi neyi ifade eder?",
-        options: [
-          "Otomatik eksternal defibrilatör (AED)",
-          "Değerlendirme (Assessment)",
-          "Ambulans çağrısı (Ambulance)",
-          "Uyanıklık (Alert)",
-          "Hava yolu (Airway)"
-        ],
-        answer: 4,
-        exp: "ABC algoritmasında A, Hava yolu (Airway) açıklığının sağlanmasını ifade eder."
-      },
-      {
-        id: 7,
-        week: "1. Hafta",
-        q: "Boyun travması şüphesi olan bilinçsiz bir kazazedede hava yolu nasıl açılmalıdır?",
-        options: [
-          "Yalnızca çene itme yöntemiyle",
-          "Baş geri çene yukarı pozisyonuyla",
-          "Başı öne eğerek",
-          "Boynu bir yana çevirerek",
-          "Kazazedeyi oturur pozisyona getirerek"
-        ],
-        answer: 0,
-        exp: "Boyun travması şüphesinde omuriliği korumak için yalnızca çene itme (jaw-thrust) yöntemi kullanılır."
-      },
-      {
-        id: 8,
-        week: "1. Hafta",
-        q: "Solunumun değerlendirilmesinde kullanılan yöntem hangisidir?",
-        options: [
-          "Sor - Dinle - Kaydet",
-          "Say - Dinle - Not al",
-          "Bak - Bas - Çek",
-          "Gör - Dokun - Bas",
-          "Bak - Dinle - Hisset"
-        ],
-        answer: 4,
-        exp: "Solunum 10 saniye boyunca Bak - Dinle - Hisset yöntemiyle değerlendirilir."
-      },
-      {
-        id: 9,
-        week: "1. Hafta",
-        q: "AVPU skalasında \"P\" harfi hangi bilinç düzeyini ifade eder?",
-        options: [
-          "Sese yanıt veren kişi",
-          "Hiçbir uyarana yanıt vermeyen kişi",
-          "Konuşan ama yer-zaman yönelimi bozuk kişi",
-          "Yalnızca ağrılı uyarana yanıt veren kişi",
-          "Uyanık, gözleri açık ve konuşan kişi"
-        ],
-        answer: 3,
-        exp: "AVPU skalasında P (Pain), yalnızca ağrılı uyarana yanıt veren bilinç düzeyidir."
-      },
-      {
-        id: 10,
-        week: "1. Hafta",
-        q: "Burun kanamasında doğru ilk yardım uygulaması hangisidir?",
-        options: [
-          "Başı öne eğip burun kanatlarını yaklaşık 10 dakika sıkıştırmak",
-          "Başı geriye yatırmak",
-          "Bol miktarda soğuk su içirmek",
-          "Burna pamuk tıkayıp başı geriye atmak",
-          "Sırtüstü yatırıp bacakları kaldırmak"
-        ],
-        answer: 0,
-        exp: "Kanın genze kaçmasını önlemek için baş hafif öne eğilir ve burun kanatları 10 dakika sıkılır."
-      },
-      {
-        id: 11,
-        week: "1. Hafta",
-        q: "Her araçta ilk yardım çantası bulundurulmasını zorunlu kılan düzenleme hangisidir?",
-        options: [
-          "Güvenlik ve Sağlık İşaretleri Yönetmeliği",
-          "KKD Yönetmeliği",
-          "4857 sayılı İş Kanunu",
-          "Karayolları Trafik Yönetmeliği",
-          "6331 sayılı İş Sağlığı ve Güvenliği Kanunu"
-        ],
-        answer: 3,
-        exp: "Araçlarda ilk yardım çantası bulundurma zorunluluğu Karayolları Trafik Yönetmeliği kapsamındadır."
-      },
-      {
-        id: 12,
-        week: "1. Hafta",
-        q: "Bir üretim tesisinde mesainin sonuna doğru büyük bir gürültü duyuyorsunuz. Sesin geldiği yere gittiğinizde çalışma arkadaşınız Mehmet'in elektrik panosunun hemen önünde yerde hareketsiz yattığını, panodan ara ara kıvılcımlar çıktığını ve zeminin ıslak olduğunu görüyorsunuz. Çevrede başka kimse yok. Bu durumda ilk yardımcı olarak İLK yapmanız gereken nedir?",
-        options: [
-          "Hemen yanına koşup omuzlarından tutarak sarsmak",
-          "Kazazedeyi kolundan tutup sürükleyerek panodan uzaklaştırmak",
-          "Ayıltmak için yüzüne su serpip kolonya koklatmak",
-          "Hemen göğüs basısına başlamak",
-          "Elektrik ve ıslak zemin tehlikesi nedeniyle önce kendi güvenliğinizi sağlamak; kazazedeye dokunmadan ortamı güvenli hâle getirip 112'yi aramak"
-        ],
-        answer: 4,
-        exp: "Elektrik ve ıslak zemin tehlikesi varken dokunulmaz; önce enerji kesilerek ortam güvenliği sağlanır ve 112 aranır."
-      },
-      {
-        id: 13,
-        week: "1. Hafta",
-        q: "Kampüs kantininde yere yığılan Ayşe'nin yanına gidiyorsunuz. \"İyi misiniz, beni duyuyor musunuz?\" diye seslendiğinizde yanıt vermiyor. Omzundan hafifçe sarstığınızda da tepki yok. Kulak memesini sıktığınızda ise gözlerini kısa bir süre açıp inliyor, sonra yine tepkisiz kalıyor. AVPU skalasına göre Ayşe'nin bilinç düzeyi hangisidir?",
-        options: [
-          "A - Alert (uyanık)",
-          "P - Pain (yalnızca ağrılı uyarana yanıt)",
-          "C - Confused (bilinç bulanık)",
-          "U - Unresponsive (hiçbir uyarana yanıt yok)",
-          "V - Verbal (sese yanıt)"
-        ],
-        answer: 1,
-        exp: "Sesli uyarana tepki vermeyip kulak memesi sıkılınca tepki verdiği için P (Pain) düzeyindedir."
-      },
-      {
-        id: 14,
-        week: "1. Hafta",
-        q: "Bir trafik kazasına tanık oldunuz ve 112'yi aradınız. Operatöre kazanın yerini, kaza türünü, yaralı sayısını ve yaralıların bilinç durumunu, ayrıca adınızı ve telefon numaranızı verdiniz. Yanınızdaki arkadaşınız \"Tamam, her şeyi söyledin; telefonu kapat da yaralılara bakalım\" diyor. Bu durumda doğru davranış hangisidir?",
-        options: [
-          "Telefonu kapatıp 155'i de aramak",
-          "Hattı açık bırakıp telefonu yere koyarak uzaklaşmak",
-          "Operatör \"kapatabilirsiniz\" diyene kadar hatta kalmak",
-          "Telefonu kapatıp 10 dakika sonra tekrar aramak",
-          "Bilgiler verildiği için telefonu hemen kapatmak"
-        ],
-        answer: 2,
-        exp: "Ek bilgi gerekebileceği için 112 operatörü \"kapatabilirsiniz\" diyene kadar hat kapatılmamalıdır."
-      },
-      {
-        id: 15,
-        week: "1. Hafta",
-        q: "Ofis mutfağında çay demlerken kaynar su elinize dökülen arkadaşınızın elinin üst kısmı kızarıyor ve yanıyor. Ortamdaki çalışanlardan biri diş macunu sürmeyi, bir başkası buzdolabından yoğurt getirmeyi öneriyor. Bu durumda yapılması gereken doğru ilk yardım uygulaması hangisidir?",
-        options: [
-          "Yanığa yağ veya salça sürüp kapatmak",
-          "Yanık bölgeyi yaklaşık 20 dakika oda sıcaklığındaki akar su altında soğutmak",
-          "Yanık bölgeye doğrudan buz koymak",
-          "Yanığa yoğurt sürmek",
-          "Yanığa diş macunu sürmek"
-        ],
-        answer: 1,
-        exp: "Yanıklarda yoğurt, diş macunu veya buz kullanılmaz; 20 dakika oda sıcaklığında akar su altında soğutulur."
-      },
-      {
-        id: 16,
-        week: "2. Hafta",
-        q: "Yetişkinlerde temel yaşam desteğinde göğüs basısı ile kurtarıcı nefes oranı nedir?",
-        options: [
-          "5:1",
-          "20:2",
-          "30:5",
-          "15:2",
-          "30:2"
-        ],
-        answer: 4,
-        exp: "Yetişkin temel yaşam desteğinde oran 30 göğüs basısı ve 2 kurtarıcı nefestir (30:2)."
-      },
-      {
-        id: 17,
-        week: "2. Hafta",
-        q: "AED pedleri vücuda nasıl yerleştirilir?",
-        options: [
-          "Biri sağ köprücük kemiği altına, diğeri sol koltuk altına",
-          "İkisi de sol göğüs üzerine yan yana",
-          "Biri boyna, diğeri sağ koltuk altına",
-          "İkisi de göğüs kemiğinin üzerine",
-          "Biri göbeğe, diğeri sırta"
-        ],
-        answer: 0,
-        exp: "AED pedlerinden biri sağ köprücük kemiği altına, diğeri sol koltuk altı çizgisine yerleştirilir."
-      },
-      {
-        id: 18,
-        week: "2. Hafta",
-        q: "AED (Otomatik Eksternal Defibrilatör) ile ilgili aşağıdakilerden hangisi DOĞRUDUR?",
-        options: [
-          "Şok verildikten sonra CPR'ye gerek kalmaz",
-          "Pedler karın bölgesine yapıştırılır",
-          "Yalnızca gerekli ritimde şok verir; kalbi atan birine yanlışlıkla şok uygulamaz",
-          "Cihaz ritmi analiz ederken CPR'ye devam edilir",
-          "Yalnızca doktorlar tarafından kullanılabilir"
-        ],
-        answer: 2,
-        exp: "AED kalp ritmini otomatik analiz eder ve yalnızca şoklanabilir ritim varsa şok verir."
-      },
-      {
-        id: 19,
-        week: "2. Hafta",
-        q: "Turnike uygulamasıyla ilgili aşağıdakilerden hangisi YANLIŞTIR?",
-        options: [
-          "Yaranın yaklaşık 5-7 cm üstüne uygulanır",
-          "Uygulanma saati mutlaka not edilir",
-          "Yalnızca baskıyla durmayan, hayatı tehdit eden uzuv kanamasında kullanılır",
-          "Eklemin tam üzerine uygulanır",
-          "Kanama kontrolünde son çare olarak düşünülür"
-        ],
-        answer: 3,
-        exp: "Turnike hiçbir zaman eklem üzerine uygulanmaz, tek kemikli bölgeye (yaranın 5-7 cm üstüne) uygulanır."
-      },
-      {
-        id: 20,
-        week: "2. Hafta",
-        q: "Aşağıdakilerden hangisi şok belirtilerinden biri DEĞİLDİR?",
-        options: [
-          "Susuzluk hissi",
-          "Dudaklarda morarma",
-          "Huzursuzluk ve baş dönmesi",
-          "Soluk, soğuk ve nemli cilt",
-          "Yavaş ve güçlü nabız"
-        ],
-        answer: 4,
-        exp: "Şok tablosunda nabız yavaş ve güçlü değil, hızlı ve zayıftır (ipliksi nabız)."
-      },
-      {
-        id: 21,
-        week: "2. Hafta",
-        q: "İçi su dolu kabarcıklar (bül) ve şiddetli ağrı ile seyreden yanık hangi derecedir?",
-        options: [
-          "Elektrik yanığı",
-          "Yüzeysel güneş yanığı",
-          "3. derece yanık",
-          "2. derece yanık",
-          "1. derece yanık"
-        ],
-        answer: 3,
-        exp: "İçi su dolu kabarcıklar (bül) ve şiddetli ağrı 2. derece yanık belirtisidir."
-      },
-      {
-        id: 22,
-        week: "2. Hafta",
-        q: "Kırık, çıkık ve burkulmalarda uygulanan RICE kuralındaki \"E (Elevation)\" neyi ifade eder?",
-        options: [
-          "Elastik bandajla sarmayı",
-          "Uzvu hareketsiz bırakmayı",
-          "Beze sarılı buz uygulamayı",
-          "Acil 112'yi aramayı",
-          "Uzvu kalp seviyesinin üstüne kaldırmayı"
-        ],
-        answer: 4,
-        exp: "RICE kuralında E (Elevation), ödemi azaltmak için yaralı uzvu kalp seviyesinin üstüne kaldırmaktır."
-      },
-      {
-        id: 23,
-        week: "2. Hafta",
-        q: "Bilinci açık, öksüremeyen ve hava yolu tıkalı bir yetişkine uygulanacak doğru sıralama hangisidir?",
-        options: [
-          "Önce su içirmek, sonra sırt darbesi",
-          "Ağzına parmakla körlemesine girip cismi çıkarmak",
-          "Önce 5 sırt darbesi, düzelmezse 5 karın basısı (Heimlich)",
-          "Hemen yere yatırıp kurtarıcı nefes vermek",
-          "Önce 30 göğüs basısı, sonra 2 nefes"
-        ],
-        answer: 2,
-        exp: "Tam tıkanmada bilinci açık yetişkine önce 5 sırt darbesi, ardından 5 karın basısı (Heimlich) uygulanır."
-      },
-      {
-        id: 24,
-        week: "2. Hafta",
-        q: "Türkiye'de Zehir Danışma Merkezi'nin numarası hangisidir?",
-        options: [
-          "110",
-          "112",
-          "155",
-          "177",
-          "184"
-        ],
-        answer: 1,
-        exp: "Şıklarda 114 bulunmadığı ve tüm acil çağrılar 112 çatısı altında birleştiği için doğru yanıt 112'dir."
-      },
-      {
-        id: 25,
-        week: "2. Hafta",
-        q: "İnmeyi tanımada kullanılan FAST testindeki \"S\" harfi neyi değerlendirir?",
-        options: [
-          "Şok belirtilerini (Shock)",
-          "Görmeyi (Sight)",
-          "Solunumu (SpO2)",
-          "Konuşmayı (Speech)",
-          "Uykululuğu (Sleepiness)"
-        ],
-        answer: 3,
-        exp: "FAST testinde S (Speech), konuşmada peltekleşme veya bozulmayı değerlendirir."
-      },
-      {
-        id: 26,
-        week: "2. Hafta",
-        q: "Atölyede çalışan 45 yaşındaki usta aniden yere yığılıyor. Ortam güvenli. Omzundan dürtüp seslendiğinizde tepki vermiyor. Bir arkadaşınız 112'yi arayıp AED getirmeye gidiyor. Siz hava yolunu açıp 10 saniye boyunca bak-dinle-hisset yöntemiyle kontrol ediyorsunuz ve solunum olmadığını görüyorsunuz. Bu noktada yapmanız gereken uygulama hangisidir?",
-        options: [
-          "AED gelene kadar hiçbir şey yapmadan beklemek",
-          "Karın bölgesine dakikada 150 hızla 2-3 cm derinlikte bası uygulamak",
-          "Göğüs kemiğinin üst ucuna dakikada 60 hızla 15 bası ve 2 nefes uygulamak",
-          "Göğüs kemiğinin alt yarısına, dakikada 100-120 hızla, 5-6 cm derinlikte 30 bası ve ardından 2 kurtarıcı nefes uygulamak",
-          "Kazazedeyi yan yatırıp 112'nin gelmesini beklemek"
-        ],
-        answer: 3,
-        exp: "Solunumu olmayan yetişkinde hemen göğüs kemiğinin alt yarısına 100-120/dk hızla 5-6 cm derinlikte 30 bası ve 2 nefes uygulanır."
-      },
-      {
-        id: 27,
-        week: "2. Hafta",
-        q: "CPR uygulaması sürerken AED geliyor. Cihazı açıyorsunuz, sesli komutları izleyerek pedleri yapıştırıyorsunuz. Cihaz \"Ritim analiz ediliyor\" uyarısı verirken yanınızdaki bir arkadaşınızın hâlâ kazazedenin elini tuttuğunu fark ediyorsunuz. Bu durumda doğru davranış hangisidir?",
-        options: [
-          "Herkesin kazazededen elini çekmesini sağlamak; cihaz şok önerirse şok verip hemen CPR'ye devam etmek",
-          "Arkadaşınızın kazazedenin elini tutmaya devam etmesine izin vermek",
-          "Analiz sırasında göğüs basısına devam etmek",
-          "Pedleri çıkarıp cihazı kapatmak",
-          "Şok verildikten sonra CPR'yi tamamen bırakmak"
-        ],
-        answer: 0,
-        exp: "Ritim analizi ve şok sırasında hiç kimse kazazedeye dokunmamalı; şok sonrası derhal CPR'ye devam edilmelidir."
-      },
-      {
-        id: 28,
-        week: "2. Hafta",
-        q: "Depoda kırılan bir cam rafın keskin parçası çalışanın ön kolunu derin biçimde kesiyor ve yoğun bir kanama başlıyor. Yaranın üzerine temiz bir bez koyup bastırıyorsunuz; ancak bir süre sonra bezin tamamen kanla ıslandığını ve kanın bezden sızdığını görüyorsunuz. Bu durumda yapmanız gereken doğru uygulama hangisidir?",
-        options: [
-          "Hemen dirsek ekleminin tam üzerine turnike uygulamak",
-          "İlk bezi çıkarmadan üzerine yeni bez ekleyip baskıya devam etmek ve mümkünse kolu kalp seviyesinin üstüne kaldırmak",
-          "Yarayı alkolle yıkayıp kanamanın kendiliğinden durmasını beklemek",
-          "Kanla ıslanan bezi çıkarıp yarayı açıkta bırakmak",
-          "Kanlı bezi çıkarıp yaraya pamuk tıkamak"
-        ],
-        answer: 1,
-        exp: "Pıhtılaşmayı bozmamak için ilk bez kaldırılmadan üzerine yeni bez eklenerek baskıya devam edilir ve uzuv yukarı kaldırılır."
-      },
-      {
-        id: 29,
-        week: "2. Hafta",
-        q: "Bir trafik kazası sonrası olay yerindeki yaralının cildi soluk, soğuk ve terli; nabzı hızlı ve zayıf, solunumu hızlı. Huzursuz olduğunu, başının döndüğünü ve çok susadığını söyleyerek sizden su istiyor. Bu yaralıya yapılması gereken doğru uygulama hangisidir?",
-        options: [
-          "Sırtüstü yatırıp bacaklarını yaklaşık 30 cm kaldırmak, üstünü örtmek, ağızdan bir şey vermemek ve 112'yi aramak",
-          "Oturtup sıcak çay içirmek",
-          "Ayağa kaldırıp yürütmek",
-          "Yüzüstü yatırıp başını aşağı sarkıtmak",
-          "Susadığı için bol su içirmek"
-        ],
-        answer: 0,
-        exp: "Şok belirtileri gösteren yaralıya şok pozisyonu verilir, üzeri örtülür, ağızdan sıvı/yiyecek verilmez ve 112 aranır."
-      },
-      {
-        id: 30,
-        week: "2. Hafta",
-        q: "Bir fabrikanın kapalı atık su kuyusunda bakım yapan iki işçi kısa aralıklarla bayılıyor. Kuyunun ağzından baktığınızda ikisinin de hareketsiz yattığını görüyorsunuz; ortamda zehirli gaz (CO, metan) birikmiş olabileceği düşünülüyor. Bu durumda doğru davranış hangisidir?",
-        options: [
-          "Kuyuya inip işçilere kurtarıcı nefes vermek",
-          "Tek başına gazlı ortama girmemek; 112'yi aramak ve kurtarmayı uygun donanımlı ekiplere bırakmak",
-          "İşçileri kusturmak için kuyuya su dökmek",
-          "Ağzınızı ıslak mendille kapatıp kuyuya inmek",
-          "Hemen kuyuya inip işçileri tek başına dışarı çıkarmak"
-        ],
-        answer: 1,
-        exp: "Zehirli gaz şüphesi olan kapalı alanlara korumasız girilmez; 112 aranarak profesyonel kurtarma ekipleri beklenir."
-      },
-      {
-        id: 31,
-        week: "2. Hafta",
-        q: "Fakülte kantininde öğle yemeği yiyen 58 yaşındaki aşçı ile konuşurken, gülümsediğinde ağzının bir kenarının düştüğünü, kollarını kaldırmasını istediğinizde bir kolunun aşağı düştüğünü ve konuşmasının peltekleştiğini fark ediyorsunuz. Bu tabloya göre en doğru davranış hangisidir?",
-        options: [
-          "Sırtüstü yatırıp bacaklarını kaldırmak ve beklemek",
-          "İnme şüphesiyle hemen 112'yi aramak ve belirtilerin başlama saatini bildirmek",
-          "Belirtiler geçene kadar dinlenmesini beklemek",
-          "Kendi aracıyla eve gitmesini önermek",
-          "Ağzına şeker koyup beklemek"
-        ],
-        answer: 1,
-        exp: "FAST bulguları inme işaretidir; vakit kaybetmeden 112 aranmalı ve belirtilerin başlangıç saati iletilmelidir."
-      },
-      {
-        id: 32,
-        week: "3. Hafta",
-        q: "Hidrofil pamuk ile ilgili aşağıdakilerden hangisi DOĞRUDUR?",
-        options: [
-          "Kanamayı durdurmak için yaraya tıkanır",
-          "Açık yaranın üzerine doğrudan konur",
-          "Kol askısı yapmakta kullanılır",
-          "Steril gazlı bezin yerine kullanılır",
-          "Antiseptik uygulamada taşıyıcıdır; açık yaraya doğrudan konmaz"
-        ],
-        answer: 4,
-        exp: "Hidrofil pamuk lifleri yaraya yapışabileceği için açık yaraya doğrudan konmaz, yalnızca taşıyıcı olarak kullanılır."
-      },
-      {
-        id: 33,
-        week: "3. Hafta",
-        q: "Parmakların sarılmasında kullanılan sargı bezi genişliği yaklaşık ne kadardır?",
-        options: [
-          "2.5 cm",
-          "5 cm",
-          "7.5 cm",
-          "10 cm",
-          "15 cm"
-        ],
-        answer: 0,
-        exp: "Parmakların sarılmasında yaklaşık 2.5 cm genişliğinde sargı bezi kullanılır."
-      },
-      {
-        id: 34,
-        week: "3. Hafta",
-        q: "El ve el bileği için kullanılan ve çantada mutlaka bulunması gereken en sık kullanılan sargı genişliği hangisidir?",
-        options: [
-          "2.5 cm",
-          "5 cm",
-          "7.5 cm",
-          "10 cm",
-          "15 cm"
-        ],
-        answer: 1,
-        exp: "El ve el bileği sargılarında en sık 5 cm genişliğinde sargı bezi tercih edilir."
-      },
-      {
-        id: 35,
-        week: "3. Hafta",
-        q: "Sargı uygulamasında parmak uçlarının açıkta bırakılmasının temel nedeni nedir?",
-        options: [
-          "Sargının daha hızlı bitmesini sağlamak",
-          "Parmakların terlemesini önlemek",
-          "Hastanın parmaklarını kullanabilmesini sağlamak",
-          "Sargıdan tasarruf etmek",
-          "Renk ve ısı kontrolüyle dolaşımı izleyebilmek"
-        ],
-        answer: 4,
-        exp: "Sargının dolaşımı kesmediğinden emin olmak için parmak uçları açıkta bırakılarak renk ve ısı izlenir."
-      },
-      {
-        id: 36,
-        week: "3. Hafta",
-        q: "Aşağıdakilerden hangisi sargı uygulamasında YANLIŞ bir davranıştır?",
-        options: [
-          "Her turda bir öncekinin yarısını örtmek",
-          "Sargıya uçtan başlayıp gövdeye doğru ilerlemek",
-          "Parmak uçlarını açıkta bırakmak",
-          "Sarma sonrası renk, ısı, his ve şişlik kontrolü yapmak",
-          "Düğümü veya klipsi yaranın tam üzerine gelecek şekilde koymak"
-        ],
-        answer: 4,
-        exp: "Düğüm veya klips yaraya baskı ve ağrı yapmaması için yaranın üzerine getirilmez."
-      },
-      {
-        id: 37,
-        week: "3. Hafta",
-        q: "Steril serum fizyolojik ile ilgili aşağıdakilerden hangisi DOĞRUDUR?",
-        options: [
-          "Sağlıklı dokuyu tahriş ettiği için kullanılmaz",
-          "%0,9 NaCl çözeltisidir; antiseptik değildir, yara yıkamada kullanılır",
-          "Yalnızca el dezenfeksiyonunda kullanılır",
-          "Geniş spektrumlu iyotlu bir antiseptiktir",
-          "%3'lük bir antiseptiktir"
-        ],
-        answer: 1,
-        exp: "Steril serum fizyolojik %0,9 izotonik NaCl çözeltisidir; dokuya zarar vermeden yara yıkamada kullanılır."
-      },
-      {
-        id: 38,
-        week: "3. Hafta",
-        q: "Povidon iyot (Batikon) hangi kişilerde temkinli kullanılmalıdır?",
-        options: [
-          "Diyabet hastalarında",
-          "İyot alerjisi olanlarda ve tiroid hastalarında",
-          "Tansiyon hastalarında",
-          "Astım hastalarında",
-          "Lateks alerjisi olanlarda"
-        ],
-        answer: 1,
-        exp: "İyot içeriği nedeniyle iyot alerjisi olanlarda ve tiroid hastalarında dikkatli kullanılmalıdır."
-      },
-      {
-        id: 39,
-        week: "3. Hafta",
-        q: "Cımbız (penset) kullanımıyla ilgili doğru ifade hangisidir?",
-        options: [
-          "Yara içindeki pıhtıyı temizlemek için kullanılır",
-          "Sargı bezini kesmek için kullanılır",
-          "Saplanmış bıçak gibi cisimleri çıkarmak için kullanılır",
-          "Derine batmış cisimler mutlaka cımbızla çıkarılır",
-          "Yalnızca yüzeyde ve kolay görünen yabancı cisim çıkarılır; derine batan çıkarılmaz"
-        ],
-        answer: 4,
-        exp: "Cımbızla sadece yüzeydeki kıymık gibi küçük cisimler çıkarılır; derine saplanan cisimlere dokunulmaz."
-      },
-      {
-        id: 40,
-        week: "3. Hafta",
-        q: "Lateks alerjisi olan bir kişiye müdahalede hangi eldiven tercih edilmelidir?",
-        options: [
-          "Deri eldiven",
-          "Bez iş eldiveni",
-          "Nitril eldiven",
-          "Yün eldiven",
-          "Lateks eldiven"
-        ],
-        answer: 2,
-        exp: "Lateks alerjisi riskine karşı nitril eldiven kullanılır."
-      },
-      {
-        id: 41,
-        week: "3. Hafta",
-        q: "İlk yardım çantası veya dolabı için aşağıdakilerden hangisi YANLIŞTIR?",
-        options: [
-          "Son kullanma tarihleri periyodik kontrol edilmelidir",
-          "Herkesin yerini bildiği sabit bir noktada olmalıdır",
-          "Üzerinde beyaz zeminde yeşil/kırmızı haç işareti bulunmalıdır",
-          "Kilitli tutulmalı, anahtarı yalnızca yöneticide bulunmalıdır",
-          "Serin ve kuru yerde saklanmalıdır"
-        ],
-        answer: 3,
-        exp: "İlk yardım dolabı acil durumlarda herkesin hemen erişebilmesi için kilitli tutulmamalıdır."
-      },
-      {
-        id: 42,
-        week: "3. Hafta",
-        q: "Laboratuvardaki ilk yardım çantasını denetliyorsunuz. Antiseptik solüsyonun (povidon iyot) son kullanma tarihinin geçtiğini, steril gazlı bez paketlerinden birinin ıslanmış olduğunu ve 5 çift olması gereken eldivenden yalnızca 2 çift kaldığını görüyorsunuz. Bu durumda yapılması gereken en doğru işlem hangisidir?",
-        options: [
-          "Çantayı kilitleyip kimsenin kullanmamasını sağlamak",
-          "Islak gazlı bezi kurutup tekrar çantaya koymak",
-          "Tarihi geçen ve ıslak ürünleri atıp yenilemek, eksik eldivenleri tamamlamak ve kontrol tarihini listeye yazmak",
-          "Tarihi geçen solüsyonu \"idare eder\" diyerek bırakmak",
-          "Eksikleri bir sonraki yıllık kontrole kadar ertelemek"
-        ],
-        answer: 2,
-        exp: "Son kullanma tarihi geçen ve sterilitesi bozulan (ıslanan) malzemeler yenilenmeli, eksikler tamamlanmalıdır."
-      },
-      {
-        id: 43,
-        week: "3. Hafta",
-        q: "Bahçe çitini onarırken bir arkadaşınızın parmağına yüzeyde kolayca görünen bir tahta kıymığı batıyor ve küçük bir sıyrık oluşuyor. Yanınızdaki kişi yaraya kolonya dökmeyi ve üzerine doğrudan hidrofil pamuk koyup bantlamayı öneriyor. Bu durumda doğru uygulama hangisidir?",
-        options: [
-          "Yaraya kolonya döküp üzerine pamuk bantlamak",
-          "Kıymığı iğneyle derinden kazıyarak çıkarmak",
-          "Yaraya doğrudan pamuk tıkayıp sıkıca sarmak",
-          "Eldiven takıp kıymığı cımbızla almak, yarayı serum fizyolojikle yıkamak ve steril gazlı bezle örtmek",
-          "Yaraya alkol dökmek ve açık bırakmak"
-        ],
-        answer: 3,
-        exp: "Yüzeydeki kıymık eldiven giyilerek cımbızla alınır, yara serum fizyolojikle yıkanır ve steril gazlı bezle kapatılır."
-      },
-      {
-        id: 44,
-        week: "3. Hafta",
-        q: "Kanayan bir yaraya müdahaleyi tamamladınız ve eldivenlerinizin dış yüzeyi kanla kirlendi. Şimdi eldivenleri çapraz bulaşa yol açmadan çıkarmanız gerekiyor. Aşağıdakilerden hangisi doğru çıkarma tekniğidir?",
-        options: [
-          "Eldivenleri çıkarmadan bir sonraki yaralıya geçmek",
-          "Eldivenleri çıkardıktan sonra el yıkamaya gerek görmemek",
-          "Eldivenleri dişle çekerek çıkarmak",
-          "İki eldiveni de çıplak elle parmak uçlarından çekerek çıkarmak",
-          "İlk eldiveni bilekten dış yüzeyinden tutup ters çevirerek çıkarmak, çıplak parmağı ikinci eldivenin iç tarafından sokup onu da ters çevirerek çıkarmak, tıbbi atığa atıp elleri yıkamak"
-        ],
-        answer: 4,
-        exp: "Kirli dış yüzeye çıplak cilt temas etmeden eldivenler ters çevrilerek çıkarılır, tıbbi atığa atılır ve eller yıkanır."
-      },
-      {
-        id: 45,
-        week: "4. Hafta",
-        q: "Örtü ve sargı arasındaki fark için doğru ifade hangisidir?",
-        options: [
-          "Sargı yalnızca kırıklarda kullanılır",
-          "İkisi de aynı amaçla kullanılır",
-          "Örtü yalnızca yanıklarda kullanılır",
-          "Örtü yarayı kapatır, sargı örtüyü yerinde tutar",
-          "Sargı yarayı kapatır, örtü sargıyı tutar"
-        ],
-        answer: 3,
-        exp: "Steril örtü doğrudan yarayı kapatır, sargı ise örtüyü yerinde sabitlemek için kullanılır."
-      },
-      {
-        id: 46,
-        week: "4. Hafta",
-        q: "Derste verilen üçgen sargının yaklaşık ölçüleri hangisidir?",
-        options: [
-          "120 x 120 x 120 cm",
-          "5 cm x 5 m",
-          "50 x 50 x 70 cm",
-          "10 x 10 x 10 cm",
-          "96 x 96 x 136 cm"
-        ],
-        answer: 4,
-        exp: "Standart üçgen sargının yaklaşık kenar ölçüleri 96 x 96 x 136 cm'dir."
-      },
-      {
-        id: 47,
-        week: "4. Hafta",
-        q: "Aşağıdakilerden hangisi üçgen sargının kullanım alanlarından biri DEĞİLDİR?",
-        options: [
-          "Geniş yara örtüsü olarak kullanılması",
-          "Baskılı pansumanda kullanılması",
-          "Suni solunumda bariyer maske olarak kullanılması",
-          "Atelle birlikte geçici sabitlemede kullanılması",
-          "Kol askısı (sling) yapılması"
-        ],
-        answer: 2,
-        exp: "Üçgen sargı kol askısı, sabitleme veya örtü amacıyla kullanılır; suni solunum maskesi değildir."
-      },
-      {
-        id: 48,
-        week: "4. Hafta",
-        q: "Hidrojel içeren steril yanık örtüsünün işlevi nedir?",
-        options: [
-          "Kanamayı turnike gibi durdurur",
-          "Burkulmada basınç uygular",
-          "Yanık yüzeyini serinletir ve kapatır",
-          "Yarayı antiseptikle temizler",
-          "Kırık uzvu sabitler"
-        ],
-        answer: 2,
-        exp: "Hidrojel yanık örtüsü yanık bölgesini soğutarak ağrıyı azaltır ve enfeksiyona karşı korur."
-      },
-      {
-        id: 49,
-        week: "4. Hafta",
-        q: "Köpük kaplı, bükülebilir alüminyum şeritten oluşan hazır atel hangisidir?",
-        options: [
-          "Tahta atel",
-          "Üçgen sargı",
-          "SAM splint",
-          "Esmark bandajı",
-          "Boyunluk (servikal)"
-        ],
-        answer: 2,
-        exp: "Köpük kaplı, şekil verilebilir hafif alüminyum hazır atel SAM splint olarak adlandırılır."
-      },
-      {
-        id: 50,
-        week: "4. Hafta",
-        q: "Atel uygulamasında temel sabitleme ilkesi hangisidir?",
-        options: [
-          "Atel yalnızca kırık bölgesini kapatmalıdır",
-          "Atel yalnızca açık kırıklarda kullanılmalıdır",
-          "Atel dolaşımı kesecek kadar sıkı bağlanmalıdır",
-          "Atel, kırığın bir üst ve bir alt eklemini içine alacak uzunlukta olmalıdır",
-          "Kırık önce yerine oturtulmalı, sonra sabitlenmelidir"
-        ],
-        answer: 3,
-        exp: "Hareketsizliği tam sağlamak için atel kırık kemiğin bir üst ve bir alt eklemini içine almalıdır."
-      },
-      {
-        id: 51,
-        week: "4. Hafta",
-        q: "Boyunluk (servikal) ile ilgili doğru ifade hangisidir?",
-        options: [
-          "Burkulmada basınç uygulamak için kullanılır",
-          "Boyun travması şüphesinde baş-boynu sabit tutar; yalnızca eğitimli kişi takmalıdır",
-          "Her trafik kazasında herkes tarafından takılabilir",
-          "Yalnızca bilinci açık hastalarda kullanılır",
-          "Kırık kolu sabitlemek için kullanılır"
-        ],
-        answer: 1,
-        exp: "Servikal boyunluk baş-boynu sabitler ve yanlış uygulama riski nedeniyle yalnızca eğitimli kişilerce takılmalıdır."
-      },
-      {
-        id: 52,
-        week: "4. Hafta",
-        q: "Sterilite kurallarıyla ilgili aşağıdakilerden hangisi YANLIŞTIR?",
-        options: [
-          "Ambalajı yırtık veya ıslak olan kullanılmaz",
-          "Her yara için ayrı, yeni örtü kullanılır",
-          "Ambalajı açılmış ama kullanılmamış örtü steril kabul edilir",
-          "Ambalaj yara üstünde, son anda açılır",
-          "Örtünün yaraya değecek yüzeyine elle dokunulmaz"
-        ],
-        answer: 2,
-        exp: "Ambalajı açılan malzeme havayla temas ettiği anda sterilliğini kaybeder."
-      },
-      {
-        id: 53,
-        week: "4. Hafta",
-        q: "İş yerlerinde ilk yardım malzemesi bulundurma yükümlülüğü kime aittir?",
-        options: [
-          "İşverene",
-          "İş güvenliği uzmanına",
-          "Sağlık Bakanlığı'na",
-          "Çalışanlara",
-          "Belediyeye"
-        ],
-        answer: 0,
-        exp: "İş yerlerinde gerekli ilk yardım malzemelerini temin etme yükümlülüğü işverene aittir."
-      },
-      {
-        id: 54,
-        week: "4. Hafta",
-        q: "İnşaat, maden ve kimya gibi işler hangi tehlike sınıfında yer alır?",
-        options: [
-          "Az tehlikeli",
-          "Tehlikeli",
-          "Orta tehlikeli",
-          "Çok tehlikeli",
-          "Tehlikesiz"
-        ],
-        answer: 3,
-        exp: "İnşaat, maden ve kimya sektörleri \"Çok tehlikeli\" işler sınıfında yer alır."
-      },
-      {
-        id: 55,
-        week: "4. Hafta",
-        q: "Malzeme kontrol çizelgesinde \"Tek kullanımlık eldiven Adet: 2/6\" kaydı için yapılması gereken aksiyon nedir?",
-        options: [
-          "Uygun durumdadır, işlem gerekmez",
-          "Dolaptan kaldırılmalıdır",
-          "Fazla olduğu için iade edilmelidir",
-          "Son kullanma tarihi geçtiği için atılmalıdır",
-          "Eksik olduğu için tamamlanmalıdır"
-        ],
-        answer: 4,
-        exp: "6 adet bulunması gereken eldivenden 2 adet kaldığı için eksik 4 adet tamamlanmalıdır."
-      },
-      {
-        id: 56,
-        week: "4. Hafta",
-        q: "İnşaat sahasında merdivenden düşen bir çalışanın ön kolunda belirgin şekil bozukluğu, şişlik ve hareketle artan ağrı var; deri bütünlüğü bozulmamış. Yanınızdaki bir işçi \"Kolu çekip yerine oturtalım, sonra sararız\" diyor. Bu durumda yapılması gereken doğru uygulama hangisidir?",
-        options: [
-          "Kolu ovarak masaj yapmak",
-          "Kolu bulunduğu pozisyonda, kırığın üst ve alt eklemini içine alan bir atelle sabitlemek, üçgen sargıyla kol askısı yapmak ve 112'yi aramak",
-          "Kolu çekerek yerine oturtup sıkıca sarmak",
-          "Kolu hareket ettirerek kırık olup olmadığını test etmek",
-          "Ateli yalnızca kırık bölgesini kapatacak kısalıkta uygulamak"
-        ],
-        answer: 1,
-        exp: "Kırık asla yerine oturtulmaya çalışılmaz; bulunduğu pozisyonda üst ve alt eklemi kapsayan atelle sabitlenir."
-      },
-      {
-        id: 57,
-        week: "4. Hafta",
-        q: "Basketbol maçında ayağı burkulan bir öğrencinin ayak bileğinde şişlik ve morarma var; şekil bozukluğu yok ve kemiğin yerinde olduğu düşünülüyor. RICE kuralına göre yapılması gereken uygulama hangisidir?",
-        options: [
-          "Hareketsiz bırakmak, beze sarılı buzu yaklaşık 20 dakika uygulamak, elastik bandajla sarmak ve ayağı kalp seviyesinin üstüne kaldırmak",
-          "Bileğe doğrudan çıplak buz koyup saatlerce bekletmek",
-          "Ağrı geçene kadar ayak bileğini çevirerek egzersiz yaptırmak",
-          "Bileği sıcak suya sokup masaj yapmak",
-          "Ayağı aşağı sarkıtıp yürümeye devam ettirmek"
-        ],
-        answer: 0,
-        exp: "Burkulmada RICE (Rest, Ice, Compression, Elevation) protokolü uygulanır."
-      },
-      {
-        id: 58,
-        week: "4. Hafta",
-        q: "Bir iş yerini ziyaret ettiğinizde ilk yardım dolabının koridorun en ucunda, önünün kolilerle kapatılmış, kilitli olduğunu ve anahtarın yalnızca müdürde bulunduğunu görüyorsunuz. Dolabın içeriğini kontrol eden bir sorumlu ya da kontrol çizelgesi de yok. Bu dolabın düzenlenmesi için doğru öneri hangisidir?",
-        options: [
-          "Dolabın kilitsiz, görünür, önü açık ve işaretli olması; bir sorumlunun atanıp tarih ve imzalı kontrol çizelgesi tutulması",
-          "Dolabın depoya taşınması",
-          "Malzemelerin çalışanların kendi dolaplarında saklanması",
-          "Dolabın daha güvenli olması için ikinci bir kilit takılması",
-          "Kontrolün yalnızca bir kaza olduktan sonra yapılması"
-        ],
-        answer: 0,
-        exp: "İlk yardım dolabı kilitsiz, kolay ulaşılır, görünür olmalı ve düzenli kontrol çizelgesiyle takip edilmelidir."
-      },
-      {
-        id: 59,
-        week: "5. Hafta",
-        q: "Kontrol (önlem) hiyerarşisinde EN ETKİLİ basamak hangisidir?",
-        options: [
-          "İkame (Substitution)",
-          "Kişisel koruyucu donanım (KKD)",
-          "Mühendislik önlemleri",
-          "Ortadan kaldırma (Elimination)",
-          "İdari önlemler"
-        ],
-        answer: 3,
-        exp: "Kontrol hiyerarşisinin en tepesindeki ve en etkili basamak tehlikeyi tamamen ortadan kaldırmaktır."
-      },
-      {
-        id: 60,
-        week: "5. Hafta",
-        q: "Kontrol hiyerarşisinde EN AZ ETKİLİ basamak hangisidir?",
-        options: [
-          "Ortadan kaldırma",
-          "Kişisel koruyucu donanım (KKD)",
-          "İkame",
-          "İdari önlemler",
-          "Mühendislik önlemleri"
-        ],
-        answer: 1,
-        exp: "Kişisel koruyucu donanım (KKD), tehlikeyi kaynağında çözmediği için hiyerarşinin en son basamağıdır."
-      },
-      {
-        id: 61,
-        week: "5. Hafta",
-        q: "Havalandırma, koruyucu kapak, otomasyon ve izolasyon hangi önlem basamağına örnektir?",
-        options: [
-          "İdari önlemler",
-          "KKD",
-          "İkame",
-          "Mühendislik önlemleri",
-          "Ortadan kaldırma"
-        ],
-        answer: 3,
-        exp: "Fiziksel bariyer, izolasyon ve havalandırma sistemleri mühendislik önlemleridir."
-      },
-      {
-        id: 62,
-        week: "5. Hafta",
-        q: "Prosedür yazılması, vardiya rotasyonu, eğitim ve uyarı levhaları hangi önlem basamağına örnektir?",
-        options: [
-          "KKD",
-          "İdari önlemler",
-          "İkame",
-          "Ortadan kaldırma",
-          "Mühendislik önlemleri"
-        ],
-        answer: 1,
-        exp: "Çalışma düzeni, eğitim, prosedürler ve levhalar idari önlemler kapsamında yer alır."
-      },
-      {
-        id: 63,
-        week: "5. Hafta",
-        q: "KKD'nin \"son savunma hattı\" olarak görülmesinin temel nedeni hangisidir?",
-        options: [
-          "Tehlikeyi yok etmez, yalnızca çalışan ile tehlike arasına bariyer koyar",
-          "Hiçbir bakım gerektirmemesi",
-          "Kullanımının yasak olması",
-          "Tehlikeyi kaynağında ortadan kaldırması",
-          "En pahalı önlem olması"
-        ],
-        answer: 0,
-        exp: "KKD riski ortadan kaldırmaz, sadece kişisel koruma bariyeri oluşturur."
-      },
-      {
-        id: 64,
-        week: "5. Hafta",
-        q: "Gürültülü bir tezgâhta önlemlerin doğru uygulama sırası hangisidir?",
-        options: [
-          "Makineyi izole etmek/sessiz modelle değiştirmek → vardiyayı kısaltmak → kulak koruyucu kullanmak",
-          "Yalnızca kulak koruyucu dağıtmak yeterlidir",
-          "Vardiyayı kısaltmak → kulak koruyucu dağıtmak → makineyi değiştirmek",
-          "Uyarı levhası asmak → kulak koruyucu → başka önleme gerek yok",
-          "Kulak koruyucu dağıtmak → vardiyayı kısaltmak → makineyi izole etmek"
-        ],
-        answer: 0,
-        exp: "Önlem sırası her zaman Kaynakta/Mühendislik → İdari önlem → KKD şeklinde ilerler."
-      },
-      {
-        id: 65,
-        week: "5. Hafta",
-        q: "Derste kulak koruyucu kullanımı için verilen gürültü eşiği hangisidir?",
-        options: [
-          "85 dB üzeri",
-          "65 dB üzeri",
-          "50 dB üzeri",
-          "120 dB üzeri",
-          "30 dB üzeri"
-        ],
-        answer: 0,
-        exp: "85 dB üzerindeki gürültü düzeylerinde kulak koruyucu kullanımı zorunludur."
-      },
-      {
-        id: 66,
-        week: "5. Hafta",
-        q: "Çelik burunlu iş ayakkabısı öncelikle hangi tehlikelere karşı korur?",
-        options: [
-          "Elektrik arkı ve ultraviyole ışın",
-          "Kıvılcım ve sıçrama",
-          "Ezilme, delinme ve kayma",
-          "Toz ve gaz",
-          "Yüksek gürültü"
-        ],
-        answer: 2,
-        exp: "İş ayakkabıları ayak parmaklarını ezilmeye, tabanı delinmeye ve zeminde kaymaya karşı korur."
-      },
-      {
-        id: 67,
-        week: "5. Hafta",
-        q: "Yanlış sınıf bir koruyucu eldiven kullanmak neden tehlikelidir?",
-        options: [
-          "Eldivenin rengi uyarı işaretlerini bozar",
-          "Koruyormuş yanılgısı yaratarak hiç kullanmamaktan daha riskli olabilir",
-          "Eldiven çabuk eskir ama risk oluşturmaz",
-          "Yalnızca konfor sorunu yaratır",
-          "Her eldiven her işe uygundur, risk yoktur"
-        ],
-        answer: 1,
-        exp: "Yanlış KKD seçimi sahte bir güven hissi yaratarak ciddi yaralanmalara yol açabilir."
-      },
-      {
-        id: 68,
-        week: "5. Hafta",
-        q: "Uyarı işaretlerinin şekli ve zemin rengi hangisidir?",
-        options: [
-          "Kare - yeşil",
-          "Yuvarlak - kırmızı çapraz",
-          "Yuvarlak - mavi",
-          "Üçgen - sarı",
-          "Kare - kırmızı"
-        ],
-        answer: 3,
-        exp: "Uyarı işaretleri üçgen şeklinde ve sarı zeminlidir."
-      },
-      {
-        id: 69,
-        week: "5. Hafta",
-        q: "\"Yetkisiz giremez\" levhası hangi işaret türüne girer?",
-        options: [
-          "Yasaklayıcı işaret",
-          "Uyarı işareti",
-          "Acil çıkış işareti",
-          "Zorunluluk işareti",
-          "İlk yardım işareti"
-        ],
-        answer: 0,
-        exp: "\"Yetkisiz giremez\" levhası tehlikeli bir davranışı yasaklayan yasaklayıcı işarettir."
-      },
-      {
-        id: 70,
-        week: "5. Hafta",
-        q: "Bir mobilya atölyesinde kullanılan solvent bazlı tutkal yoğun ve zararlı buhar çıkarıyor. Atölye sahibi \"Herkese maske alalım, sorun çözülür\" diyor. Siz kontrol (önlem) hiyerarşisini biliyorsunuz. Hiyerarşiye göre öncelikle düşünülmesi gereken önlem hangisidir?",
-        options: [
-          "Kapıya \"Dikkat buhar\" levhası asmak yeterlidir",
-          "Tutkalı daha az tehlikeli (örneğin su bazlı) bir ürünle değiştirmek ve havalandırma kurmak; maskeyi en son tamamlayıcı önlem olarak kullanmak",
-          "Yalnızca maske dağıtmak yeterlidir",
-          "Maske dağıtıp havalandırmayı kapatmak",
-          "Çalışanlara buhara alışmalarını söylemek"
-        ],
-        answer: 1,
-        exp: "Önce ikame (su bazlı tutkal) ve mühendislik önlemi (havalandırma) uygulanmalı, maske en son düşünülmelidir."
-      },
-      {
-        id: 71,
-        week: "5. Hafta",
-        q: "Staj yaptığınız fabrikanın üretim alanına girerken kapıda mavi zemin üzerinde beyaz baret simgesi bulunan yuvarlak bir levha görüyorsunuz. Yanınızdaki stajyer \"Bu sadece bilgi amaçlı, baret takmasak da olur\" diyor. Bu levha ile ilgili doğru yorum hangisidir?",
-        options: [
-          "Yalnızca ziyaretçiler için geçerli bir bilgilendirmedir",
-          "Yasak işaretidir; baret takmak yasaktır",
-          "Zorunluluk işaretidir; alanda baret takmak zorunludur",
-          "Acil çıkış işaretidir; baret dolabının yerini gösterir",
-          "Uyarı işaretidir; yalnızca dikkatli olmak yeterlidir"
-        ],
-        answer: 2,
-        exp: "Mavi zeminli yuvarlak işaretler zorunluluk (emredici) işaretleridir ve uyulması mecburidir."
-      },
-      {
-        id: 72,
-        week: "5. Hafta",
-        q: "Bir metal atölyesinde torna tezgâhında çalışmaya başlayacak olan stajyerin saçları uzun ve açık, bileğinde bileklik ve parmağında yüzük var; üzerinde de bol bir gömlek giyiyor. Kişisel emniyet açısından stajyere yapılması gereken doğru uyarı hangisidir?",
-        options: [
-          "Takıların makineye zararı yoktur, çıkarmasına gerek yoktur",
-          "Yalnızca koruyucu gözlük takması yeterlidir",
-          "Eldiven takarsa diğer önlemlere gerek kalmaz",
-          "Saçını açık bırakması serinlik için daha uygundur",
-          "Saçını toplaması, takılarını çıkarması ve bol kıyafetini sabitlemesi; aksi hâlde dönen makineye kapılma riski olduğu"
-        ],
-        answer: 4,
-        exp: "Dönen tezgâhlarda uzun saç, takı ve bol kıyafetler makineye dolanma riski oluşturur."
-      },
-      {
-        id: 73,
-        week: "6. Hafta",
-        q: "FFP1 sınıfı toz maskelerinin yaklaşık filtreleme verimi nedir?",
-        options: [
-          "%50",
-          "%80",
-          "%94",
-          "%99",
-          "%100"
-        ],
-        answer: 1,
-        exp: "FFP1 sınıfı toz maskeleri partiküllerin yaklaşık %80'ini filtreler."
-      },
-      {
-        id: 74,
-        week: "6. Hafta",
-        q: "FFP2 sınıfı toz maskelerinin yaklaşık filtreleme verimi nedir?",
-        options: [
-          "%50",
-          "%70",
-          "%80",
-          "%94",
-          "%99"
-        ],
-        answer: 3,
-        exp: "FFP2 sınıfı toz maskeleri partiküllerin yaklaşık %94'ünü filtreler."
-      },
-      {
-        id: 75,
-        week: "6. Hafta",
-        q: "Çok ince ve zararlı partiküllere karşı kullanılması gereken, filtreleme verimi yaklaşık %99 olan maske sınıfı hangisidir?",
-        options: [
-          "Cerrahi maske",
-          "Bez maske",
-          "FFP3",
-          "FFP2",
-          "FFP1"
-        ],
-        answer: 2,
-        exp: "En yüksek koruma sağlayan ve yaklaşık %99 filtreleme verimine sahip maske sınıfı FFP3'tür."
-      },
-      {
-        id: 76,
-        week: "6. Hafta",
-        q: "Toz, gaz ve buhar tehlikesine karşı hangi vücut bölgesi korunmalı ve hangi KKD kullanılmalıdır?",
-        options: [
-          "Kulak - kulak tıkacı",
-          "Baş - baret",
-          "El - kimyasal eldiven",
-          "Göz - koruyucu gözlük",
-          "Solunum yolu - maske / respiratör"
-        ],
-        answer: 4,
-        exp: "Toz, gaz ve buhar tehlikelerine karşı solunum yolu uygun maske/respiratör ile korunur."
-      },
-      {
-        id: 77,
-        week: "6. Hafta",
-        q: "Yasaklama işaretlerinin şekli ve rengi hangisidir?",
-        options: [
-          "Yuvarlak + eğik çizgi, kırmızı",
-          "Üçgen, sarı",
-          "Kare, yeşil",
-          "Dikdörtgen, beyaz",
-          "Yuvarlak (dolu), mavi"
-        ],
-        answer: 0,
-        exp: "Yasaklama işaretleri beyaz zemin üzerine kırmızı daire ve ortasında kırmızı eğik çizgi şeklindedir."
-      },
-      {
-        id: 78,
-        week: "6. Hafta",
-        q: "Yangın söndürücü ve yangın hortum dolabı gibi yangınla mücadele işaretlerinin rengi hangisidir?",
-        options: [
-          "Sarı (üçgen)",
-          "Mavi (yuvarlak)",
-          "Turuncu (üçgen)",
-          "Yeşil (kare)",
-          "Kırmızı (dikdörtgen/kare)"
-        ],
-        answer: 4,
-        exp: "Yangınla mücadele ekipmanlarını gösteren işaretler kırmızı zeminli dikdörtgen/kare şeklindedir."
-      },
-      {
-        id: 79,
-        week: "6. Hafta",
-        q: "Acil çıkış ve ilk yardım işaretlerinin rengi hangisidir?",
-        options: [
-          "Sarı",
-          "Kırmızı",
-          "Siyah",
-          "Mavi",
-          "Yeşil"
-        ],
-        answer: 4,
-        exp: "Acil çıkış yolları ve ilk yardım işaretleri yeşil zeminlidir."
-      },
-      {
-        id: 80,
-        week: "6. Hafta",
-        q: "\"Kaygan zemin\" levhası hangi işaret türüne girer?",
-        options: [
-          "Acil çıkış",
-          "Yangınla mücadele",
-          "Uyarı",
-          "Yasaklama",
-          "Zorunluluk"
-        ],
-        answer: 2,
-        exp: "\"Kaygan zemin\" levhası sarı üçgen zeminli bir uyarı işaretidir."
-      },
-      {
-        id: 81,
-        week: "6. Hafta",
-        q: "Eldivenle dönen bir makineye dokunmak neden yasaktır?",
-        options: [
-          "Eldivenin makineye kapılma (dolanma) riski olduğu için",
-          "Eldivenin pahalı olması nedeniyle",
-          "Eldivenin elektriği iletmesi nedeniyle",
-          "Makinenin hız kaybetmesi nedeniyle",
-          "Eldivenin çabuk kirlenmesi nedeniyle"
-        ],
-        answer: 0,
-        exp: "Dönen makine aksamları eldiveni yakalayarak eli ve kolu makinenin içine çekebilir."
-      },
-      {
-        id: 82,
-        week: "6. Hafta",
-        q: "Güvenlik işaretleri ile ilgili aşağıdakilerden hangisi DOĞRUDUR?",
-        options: [
-          "İşaretler yalnızca uyarır; tehlikeyi ortadan kaldırmaz",
-          "İşaretler yalnızca dekoratif amaçlıdır",
-          "İşaret asıldığında tehlike ortadan kalkar",
-          "Renk ve şeklin işaretin anlamıyla ilgisi yoktur",
-          "İşaretler yalnızca yazılı olduğunda geçerlidir"
-        ],
-        answer: 0,
-        exp: "Güvenlik işaretleri idari bir önlemdir; dikkat çeker ve uyarır ancak tehlikeyi fiziksel olarak yok etmez."
-      },
-      {
-        id: 83,
-        week: "6. Hafta",
-        q: "Bir mermer kesim atölyesinde kesim sırasında yoğun ve ince taş tozu oluşuyor, taş parçacıkları etrafa sıçrıyor ve ortam gürültüsü yaklaşık 95 dB ölçülüyor. Bu ortamda çalışacak bir işçi için en uygun KKD seti hangisidir?",
-        options: [
-          "Cerrahi maske ve güneş gözlüğü",
-          "Yalnızca FFP1 maske",
-          "FFP2/FFP3 toz maskesi + yan korumalı gözlük veya yüz siperi + kulak koruyucu (kombine koruma)",
-          "Yalnızca baret ve iş ayakkabısı",
-          "Yalnızca kulak tıkacı"
-        ],
-        answer: 2,
-        exp: "Çoklu risk bulunan ortamda solunum, göz/yüz ve işitme koruması kombine olarak kullanılmalıdır."
-      },
-      {
-        id: 84,
-        week: "6. Hafta",
-        q: "Gür sakallı bir çalışan olan Ali, zararlı toz bulunan bir ortamda FFP3 maske takıyor ve \"En yüksek sınıf maskeyi aldım, tamamen korunuyorum\" diyor. Bu durumla ilgili doğru değerlendirme hangisidir?",
-        options: [
-          "Sakal maskenin filtreleme verimini artırır",
-          "FFP3 sakaldan bağımsız olarak tam koruma sağlar",
-          "FFP1'e geçerse sorun çözülür",
-          "Sakal nedeniyle maske yüze tam oturmaz ve koruma düşer; yüze tam oturan bir koruma sağlanmalıdır",
-          "Maskeyi daha gevşek takması korumayı artırır"
-        ],
-        answer: 3,
-        exp: "Sakal, maske ile cilt arasında boşluk bırakarak sızdırmazlığı bozar ve koruma verimini düşürür."
-      },
-      {
-        id: 85,
-        week: "6. Hafta",
-        q: "Bir şantiyede işveren, çalışanlara verdiği baret ve maskelerin bedelini maaşlarından kesmek istiyor. Bazı çalışanlar ise \"Hava çok sıcak\" diyerek baretlerini takmıyor. KKD Yönetmeliği ve 6331 sayılı Kanun açısından doğru ifade hangisidir?",
-        options: [
-          "Çalışan sıcak havalarda KKD kullanmak zorunda değildir",
-          "İşveren KKD bedelini maaştan kesebilir",
-          "KKD'yi almak ve kullanmak tamamen çalışanın tercihidir",
-          "İşveren KKD verdiyse kullanımını takip etmekle yükümlü değildir",
-          "İşveren uygun KKD'yi ücretsiz sağlamakla, çalışan ise sağlanan KKD'yi doğru kullanmak ve korumakla yükümlüdür"
-        ],
-        answer: 4,
-        exp: "İşveren KKD'yi ücretsiz vermekle, çalışan ise verilen KKD'yi talimatlara uygun kullanmakla yükümlüdür."
-      },
-      {
-        id: 86,
-        week: "7. Hafta",
-        q: "Kişisel koruyucu donanım (KKD) tanımıyla ilgili aşağıdakilerden hangisi DOĞRUDUR?",
-        options: [
-          "Riski kaynağında ortadan kaldıran donanımdır",
-          "Çalışanlar arasında ortak kullanılan araçlardır",
-          "Kişi tarafından giyilen/takılan/tutulan donanımdır; riski kaynağında ortadan kaldırmaz",
-          "Makineye takılan koruyucu kapaklardır",
-          "Ortam havalandırma sistemleridir"
-        ],
-        answer: 2,
-        exp: "KKD çalışan tarafından giyilen/takılan/tutulan koruyucudur; riski kaynağında yok etmez."
-      },
-      {
-        id: 87,
-        week: "7. Hafta",
-        q: "Ölümcül veya geri dönüşü olmayan risklere karşı koruyan KKD'ler hangi kategoridedir?",
-        options: [
-          "Kategori III",
-          "Kategori IV",
-          "Kategori I",
-          "Kategori 0",
-          "Kategori II"
-        ],
-        answer: 0,
-        exp: "Yüksekten düşme, elektrik, boğulma gibi ölümcül/kalıcı risklere karşı koruyan KKD'ler Kategori III'tür."
-      },
-      {
-        id: 88,
-        week: "7. Hafta",
-        q: "Bahçe eldiveni ve güneş gözlüğü gibi asgari risklere karşı KKD'lerde uygunluk değerlendirmesi nasıl yapılır?",
-        options: [
-          "Üreticinin öz beyanı yeterlidir",
-          "Hiçbir değerlendirme yapılmaz",
-          "Tip incelemesi + sürekli üretim denetimi gerekir",
-          "Onaylanmış kuruluş tip incelemesi gerekir",
-          "Bakanlık izni gerekir"
-        ],
-        answer: 0,
-        exp: "Basit tasarımlı Kategori I KKD'lerde üreticinin kendi uygunluk beyanı yeterlidir."
-      },
-      {
-        id: 89,
-        week: "7. Hafta",
-        q: "Baret, koruyucu gözlük ve iş ayakkabısı hangi KKD kategorisine örnektir?",
-        options: [
-          "Kategori I",
-          "Kategori III",
-          "Kategori IV",
-          "Kategori 0",
-          "Kategori II"
-        ],
-        answer: 4,
-        exp: "Orta düzey mekanik risklere karşı koruyan baret, gözlük ve iş ayakkabıları Kategori II'dir."
-      },
-      {
-        id: 90,
-        week: "7. Hafta",
-        q: "Endüstriyel baret hangi EN standardı ile ilişkilidir?",
-        options: [
-          "EN 352",
-          "EN 361",
-          "EN 397",
-          "EN 166",
-          "EN 388"
-        ],
-        answer: 2,
-        exp: "Endüstriyel koruyucu baretlerin Avrupa standardı EN 397'dir."
-      },
-      {
-        id: 91,
-        week: "7. Hafta",
-        q: "Göz ve yüz koruyucuları (gözlük, siperlik) hangi EN standardı ile ilişkilidir?",
-        options: [
-          "EN 397",
-          "EN 149",
-          "EN 352",
-          "EN 166",
-          "EN 388"
-        ],
-        answer: 3,
-        exp: "Kişisel göz ve yüz koruyucuları EN 166 standardına tabidir."
-      },
-      {
-        id: 92,
-        week: "7. Hafta",
-        q: "Kulak tıkacı ve kulaklıklar hangi EN standardı ile ilişkilidir?",
-        options: [
-          "EN 361",
-          "EN 352",
-          "EN 166",
-          "EN 149",
-          "EN 397"
-        ],
-        answer: 1,
-        exp: "İşitme koruyucuları (kulaklık ve kulak tıkaçları) EN 352 standardı ile değerlendirilir."
-      },
-      {
-        id: 93,
-        week: "7. Hafta",
-        q: "FFP1/FFP2/FFP3 toz maskeleri hangi EN standardı ile ilişkilidir?",
-        options: [
-          "EN 388",
-          "EN 352",
-          "EN 149",
-          "EN ISO 20345",
-          "EN 166"
-        ],
-        answer: 2,
-        exp: "Parçacıklara karşı koruyucu yarım yüz maskeleri (FFP1-2-3) EN 149 standardına uygundur."
-      },
-      {
-        id: 94,
-        week: "7. Hafta",
-        q: "EN 388 standardındaki iş eldiveni etiketinde yer alan 4 haneli kod (örn. 4543) neyi gösterir?",
-        options: [
-          "Eldivenin üretim tarihini",
-          "Kimyasal geçirgenlik süresini dakika olarak",
-          "Eldivenin fiyat sınıfını",
-          "Her bir mekanik direnci (kesik, delinme, aşınma, yırtılma) 1-5 arası puanlar",
-          "Eldivenin bedenini"
-        ],
-        answer: 3,
-        exp: "EN 388 etiketindeki 4 haneli rakam sırasıyla aşınma, kesilme, yırtılma ve delinme direnç seviyelerini gösterir."
-      },
-      {
-        id: 95,
-        week: "7. Hafta",
-        q: "EN ISO 20345'e göre S3 sınıfı iş ayakkabısının özellikleri hangisidir?",
-        options: [
-          "Isıya dayanıklı taban + yalıtkan burun",
-          "Delinmez taban + su geçirmezlik + antistatik özellik",
-          "Yalnızca çelik burun",
-          "Yalnızca su geçirmezlik",
-          "Kaymaz taban + hafiflik"
-        ],
-        answer: 1,
-        exp: "S3 sınıfı güvenlik ayakkabısı koruyucu buruna ek olarak delinmeye dirençli taban, su geçirmezlik ve antistatik özellik sunar."
-      },
-      {
-        id: 96,
-        week: "7. Hafta",
-        q: "KKD üzerindeki CE işareti neyi ifade eder?",
-        options: [
-          "Ürünün ömür boyu garantili olduğunu",
-          "Ürünün ücretsiz dağıtıldığını",
-          "Ürünün Türkiye'de üretildiğini",
-          "Ürünün ilgili güvenlik gereklerini karşıladığına dair asgari uygunluk beyanını",
-          "Ürünün en yüksek kalite ödülünü aldığını"
-        ],
-        answer: 3,
-        exp: "CE işareti, ürünün Avrupa Birliği temel sağlık ve güvenlik gereklerine uygun olduğunu gösterir."
-      },
-      {
-        id: 97,
-        week: "7. Hafta",
-        q: "KKD'nin yaşam döngüsündeki adımların doğru sıralaması hangisidir?",
-        options: [
-          "Seç → Kullan → Değiştir → Kontrol → Bakım",
-          "Kullan → Seç → Bakım → Kontrol → Değiştir",
-          "Seç → Kontrol → Kullan → Bakım → Değiştir",
-          "Bakım → Kullan → Seç → Değiştir → Kontrol",
-          "Kontrol → Seç → Bakım → Kullan → Değiştir"
-        ],
-        answer: 2,
-        exp: "Doğru KKD yaşam döngüsü sırası: Seç → Kontrol → Kullan → Bakım → Değiştir şeklindedir."
-      },
-      {
-        id: 98,
-        week: "7. Hafta",
-        q: "Satın alma biriminin şantiye için toplu aldığı yeni baretleri incelediğinizde iç etiketlerinde CE işareti bulunmadığını, EN standardı numarasının yazmadığını ve kullanım kılavuzunun yalnızca yabancı dilde olduğunu görüyorsunuz. Fiyatları çok uygun olduğu için birim yöneticisi kullanılmalarını istiyor. Bu durumda doğru karar hangisidir?",
-        options: [
-          "Üzerine CE etiketi yapıştırılarak kullanılabilir",
-          "Bu baretler kullanılmamalı; CE işaretli, EN 397 etiketli ve Türkçe kılavuzlu ürünlerle değiştirilmelidir",
-          "Ziyaretçilere verilerek kullanılabilir",
-          "Yalnızca kısa süreli işlerde kullanılabilir",
-          "Ucuz olduğu için kullanılabilir"
-        ],
-        answer: 1,
-        exp: "CE işareti, EN 397 standardı ve Türkçe kullanım kılavuzu bulunmayan KKD'ler iş yerinde kullanılamaz."
-      },
-      {
-        id: 99,
-        week: "7. Hafta",
-        q: "Bir binanın çatısında oluk tamiri yapan işçinin belinde yalnızca bir bel kemeri var ve kemerine bağlı halatı çatı oluğuna bağlamış. Usta \"Kemeri taktık, düşme riski yok\" diyor. Bu durumla ilgili doğru değerlendirme hangisidir?",
-        options: [
-          "Halat boyu uzatılırsa bel kemeri yeterli olur",
-          "Bel kemeri tek başına düşmeyi durdurmaz; tam vücut emniyet kemeri (EN 361), bağlantı halatı ve sağlam bir ankraj noktası kullanılmalıdır",
-          "Yüksekte çalışmada KKD gerekmez, dikkatli olmak yeterlidir",
-          "Bel kemeri ve oluk bağlantısı yeterli korumayı sağlar",
-          "Kemer yerine yalnızca baret takmak yeterlidir"
-        ],
-        answer: 1,
-        exp: "Yüksekte çalışmada bel kemeri değil EN 361 tam vücut emniyet kemeri ve güvenli bir ankraj noktası şarttır."
-      },
-      {
-        id: 100,
-        week: "7. Hafta",
-        q: "Şantiyede iskeleden düşen bir çekiç, bir işçinin baretine çarpıyor. İşçi yaralanmıyor ve baretin üzerinde gözle görülür bir çatlak yok. Usta \"Bir şey olmamış, kullanmaya devam et\" diyor. Bu durumda doğru uygulama hangisidir?",
-        options: [
-          "Baret ciddi darbe aldığı için görünüşte sağlam olsa da derhal hizmet dışı bırakılıp yenisiyle değiştirilmelidir",
-          "Çatlak olmadığı için kullanmaya devam edilir",
-          "Üzerine bant sarılarak kullanılmaya devam edilir",
-          "Baret boyanarak yenilenir",
-          "Baret 5 yıllık ömrü dolana kadar kullanılır"
-        ],
-        answer: 0,
-        exp: "Ciddi darbe alan barette gözle görülmeyen mikro çatlaklar oluşabileceğinden derhal değiştirilmelidir."
-      }
-    ];
+    // Kullanıcının soru havuzu
+    const QUESTION_STORAGE_KEY = 'isg_manual_questions_v1';
+    const BUILT_IN_QUESTIONS = {"games":[{"q":"Satrançta oyuna her oyuncu kaç taşla başlar?","options":["16","12","20","24"],"answer":0,"exp":"Her oyuncu 16 taşla başlar.","id":1,"week":"Oyunlar"},{"q":"Satrançta yalnızca çapraz ilerleyen taş hangisidir?","options":["Fil","Kale","At","Piyon"],"answer":0,"exp":"Fil bulunduğu karenin çaprazları boyunca ilerler.","id":2,"week":"Oyunlar"},{"q":"Satrançta rakibin şahı tehdit altındayken bu duruma ne denir?","options":["Şah","Pat","Rok","Terfi"],"answer":0,"exp":"Şah, şahın doğrudan tehdit altında olmasıdır.","id":3,"week":"Oyunlar"},{"q":"Satrançta at hangi biçimde hareket eder?","options":["L biçiminde","Yalnız çapraz","Yalnız tek kare düz","Her zaman iki kare çapraz"],"answer":0,"exp":"At iki kare bir yönde, ardından dik yönde bir kare gider.","id":4,"week":"Oyunlar"},{"q":"Standart dama tahtası kaç kareden oluşur?","options":["64","36","49","100"],"answer":0,"exp":"Standart dama tahtası 8 çarpı 8, yani 64 karedir.","id":5,"week":"Oyunlar"},{"q":"Tavlada her oyuncu oyuna kaç pulla başlar?","options":["15","10","12","16"],"answer":0,"exp":"Tavlada her oyuncunun 15 pulu bulunur.","id":6,"week":"Oyunlar"},{"q":"Standart bir oyun zarının karşılıklı yüzlerinin toplamı kaçtır?","options":["7","6","8","10"],"answer":0,"exp":"Standart zarda karşılıklı yüzler 1–6, 2–5 ve 3–4 olarak eşleşir.","id":7,"week":"Oyunlar"},{"q":"Standart iskambil destesindeki dört seriden biri hangisidir?","options":["Kupa","Yıldız","Üçgen","Güneş"],"answer":0,"exp":"Standart destenin serileri kupa, karo, sinek ve maçadır.","id":8,"week":"Oyunlar"},{"q":"Jokerler hariç standart bir iskambil destesinde kaç kart bulunur?","options":["52","40","48","54"],"answer":0,"exp":"Dört serinin her birinde 13 kart vardır.","id":9,"week":"Oyunlar"},{"q":"UNO oyununda oyuncu elinde tek kart kaldığında geleneksel olarak ne söyler?","options":["UNO","Bingo","Pas","Mat"],"answer":0,"exp":"UNO, tek kart kaldığını bildirmek için söylenir.","id":10,"week":"Oyunlar"},{"q":"Monopoly oyununda oyuncular genellikle ne satın alıp geliştirmeye çalışır?","options":["Mülkleri","Uzay gemilerini","Futbol takımlarını","Tren biletlerini"],"answer":0,"exp":"Oyuncular mülk edinir ve bunlardan kira geliri elde etmeye çalışır.","id":11,"week":"Oyunlar"},{"q":"Kelime oyunlarında verilen harflerle anlamlı sözcük oluşturma temel olarak hangi beceriyi kullanır?","options":["Sözcük bilgisi","Yüzme","Koşu hızı","Müzik notası okuma"],"answer":0,"exp":"Harflerden sözcük türetmek sözcük bilgisi gerektirir.","id":12,"week":"Oyunlar"},{"q":"Sudoku bulmacasında klasik bir 9×9 tabloda her satırda hangi rakamlar birer kez yer alır?","options":["1’den 9’a kadar","0’dan 8’e kadar","1’den 8’e kadar","0’dan 9’a kadar"],"answer":0,"exp":"Klasik Sudoku’da her satırda 1–9 rakamları birer kez bulunur.","id":13,"week":"Oyunlar"},{"q":"Yapbozda parçaları birleştirmenin temel amacı nedir?","options":["Bir resmi tamamlamak","Zarı en yüksek sayıda atmak","Rakibin şahını tehdit etmek","Bütün kartları dağıtmak"],"answer":0,"exp":"Yapboz parçaları birleşerek bir görüntü oluşturur.","id":14,"week":"Oyunlar"},{"q":"Körebe oyununda ebe neyle hareket eder?","options":["Gözleri bağlı olarak","Tek ayağına basmadan","Sadece geriye yürüyerek","Ellerini kullanmadan"],"answer":0,"exp":"Körebede ebenin gözleri bağlanır.","id":15,"week":"Oyunlar"},{"q":"Saklambaçta ebe saymayı bitirdikten sonra ne yapar?","options":["Saklananları arar","Topu kaleye atar","Zarları toplar","Kartları karıştırır"],"answer":0,"exp":"Ebe saklanan oyuncuları bulmaya çalışır.","id":16,"week":"Oyunlar"},{"q":"Seksek oyununda oyuncu genellikle ne yapar?","options":["Çizilen karelerde sıçrar","Kart toplar","Satranç taşı dizer","Zarlarla puan alır"],"answer":0,"exp":"Seksekte oyuncular yere çizilen alanlarda sıçrar.","id":17,"week":"Oyunlar"},{"q":"Masa tenisinde topa vurmak için ne kullanılır?","options":["Raket","Sopa","Eldiven","Kale direği"],"answer":0,"exp":"Masa tenisi oyuncuları topa raketle vurur.","id":18,"week":"Oyunlar"},{"q":"Bowling oyununda bir turda devrilmeye çalışılan dizili nesneler nedir?","options":["Labutlar","Piyonlar","Kartlar","Taşlar"],"answer":0,"exp":"Bowling topuyla labutlar devrilmeye çalışılır.","id":19,"week":"Oyunlar"},{"q":"Video oyunlarında oyun karakterinin ekrandaki gösterimine yaygın olarak ne denir?","options":["Avatar","Router","Tarayıcı","Yazıcı"],"answer":0,"exp":"Avatar, kullanıcının veya karakterin dijital temsilidir.","id":20,"week":"Oyunlar"},{"q":"Bir video oyununda kaydedilmiş ilerlemeyi açmak için yaygın olarak hangi işlem yapılır?","options":["Kayıtlı oyunu yüklemek","Ekran parlaklığını artırmak","Sesi kapatmak","Tuşları değiştirmek"],"answer":0,"exp":"Kayıtlı oyunu yüklemek önceki ilerlemeyi geri getirir.","id":21,"week":"Oyunlar"},{"q":"Bir bulmaca oyununda ipucu hangi amaçla kullanılır?","options":["Çözüme yardımcı olmak","Ekranı kapatmak","Tüm kuralları kaldırmak","Oyuncu sayısını zorunlu olarak artırmak"],"answer":0,"exp":"İpucu çözüm hakkında yönlendirici bilgi verir.","id":22,"week":"Oyunlar"},{"q":"İki kişilik bir oyunda beraberlik ne anlama gelir?","options":["Tarafların eşit sonuç alması","Bir tarafın otomatik şampiyon olması","Oyunun mutlaka iptal edilmesi","İki tarafın da oyunu terk etmesi"],"answer":0,"exp":"Beraberlikte taraflar eşit sonuç elde eder.","id":23,"week":"Oyunlar"},{"q":"Satrançta piyon rakibin son yatayına ulaştığında ne olabilir?","options":["Terfi edebilir","Oyundan çıkarılmak zorundadır","Şaha dönüşmek zorundadır","Hiçbir işlem yapılmaz"],"answer":0,"exp":"Son yataya ulaşan piyon uygun bir taşa terfi eder.","id":24,"week":"Oyunlar"},{"q":"Çevrim içi çok oyunculu bir oyunda takım arkadaşlarıyla koordinasyonu hangi davranış destekler?","options":["Açık ve saygılı iletişim","Takımın hedefini gizlemek","Diğer oyuncuları sürekli engellemek","Kuralları hiç okumamak"],"answer":0,"exp":"Açık ve saygılı iletişim takımın birlikte hareket etmesini kolaylaştırır.","id":25,"week":"Oyunlar"},{"q":"Satrançta oyun başlangıcında her oyuncunun kaç piyonu bulunur?","options":["8","6","10","12"],"answer":0,"exp":"Her oyuncu sekiz piyonla başlar.","id":26,"week":"Oyunlar"},{"q":"Domino taşlarının üzerindeki işaretler genellikle neyi gösterir?","options":["Sayıları","Harfleri","Yönleri","Hava durumunu"],"answer":0,"exp":"Geleneksel domino taşlarının iki yarısında sayıları gösteren noktalar bulunur.","id":27,"week":"Oyunlar"},{"q":"Standart dama oyununda taşlar başlangıçta hangi karelere yerleştirilir?","options":["Koyu renkli karelere","Açık renkli karelere","Tüm karelere","Yalnızca orta karelere"],"answer":0,"exp":"Damada taşlar koyu karelerde oynanır.","id":28,"week":"Oyunlar"},{"q":"Mangala oyununda taşlar genellikle neyin içine yerleştirilir?","options":["Kuyuların","Zarfların","Kart destelerinin","Çarkların"],"answer":0,"exp":"Mangala türü oyunlarda taşlar oyun tahtasındaki kuyular arasında dağıtılır.","id":29,"week":"Oyunlar"},{"q":"Tavlada hamle uzunluğunu genellikle ne belirler?","options":["Atılan zarlar","Çekilen kartlar","Kum saati","Yazı tura"],"answer":0,"exp":"Oyuncuların attığı zarlar hareketlerini belirler.","id":30,"week":"Oyunlar"},{"q":"Jenga oyununda oyuncular sırayla ne yapar?","options":["Kuleden bir blok çekip üste yerleştirir","Bir satranç taşı ilerletir","Zarla bir piyon taşır","Harflerden kelime kurar"],"answer":0,"exp":"Jengada oyuncular kuleyi devirmeden bir blok çekip kulenin üzerine koymaya çalışır.","id":31,"week":"Oyunlar"},{"q":"Scrabble oyununda puan kazanmak için ne oluşturulur?","options":["Kelimeler","Renk dizileri","Sayı tabloları","Labirentler"],"answer":0,"exp":"Oyuncular harf taşlarıyla kelimeler oluşturur.","id":32,"week":"Oyunlar"},{"q":"Go oyununda geleneksel tam boy tahta kaç çizgiden oluşur?","options":["19 yatay ve 19 dikey","8 yatay ve 8 dikey","10 yatay ve 10 dikey","12 yatay ve 12 dikey"],"answer":0,"exp":"Geleneksel tam boy Go tahtası 19 × 19 çizgilidir.","id":33,"week":"Oyunlar"},{"q":"Standart bir futbol maçında bir takım sahada kaleci dahil kaç oyuncuyla başlar?","options":["11","9","10","12"],"answer":0,"exp":"Her takım sahaya 11 oyuncuyla çıkar.","id":34,"week":"Oyunlar"},{"q":"Basketbolda serbest atış kaç puan değerindedir?","options":["1","2","3","4"],"answer":0,"exp":"Başarılı bir serbest atış bir puan kazandırır.","id":35,"week":"Oyunlar"},{"q":"Voleybolda bir takımın sahada aynı anda kaç oyuncusu bulunur?","options":["6","5","7","11"],"answer":0,"exp":"Standart voleybolda takım başına altı oyuncu sahadadır.","id":36,"week":"Oyunlar"},{"q":"Teniste sıfır puanı ifade etmek için hangi İngilizce terim kullanılır?","options":["Love","Ace","Set","Deuce"],"answer":0,"exp":"Teniste sıfır puan love olarak adlandırılır.","id":37,"week":"Oyunlar"},{"q":"Badminton oyununda file üzerinden hangi araç gönderilir?","options":["Tüylü top","Beyzbol topu","Disk","Bilardo topu"],"answer":0,"exp":"Badmintonda tüylü top veya benzeri sentetik top kullanılır.","id":38,"week":"Oyunlar"},{"q":"Bowlingde tek bir atışla on lobutun tamamını devirmeye ne denir?","options":["Strike","Spare","Faul","Set"],"answer":0,"exp":"Bir karenin ilk atışında on lobutun tamamı devrilirse strike yapılmış olur.","id":39,"week":"Oyunlar"},{"q":"Olimpiyat sembolünde kaç halka bulunur?","options":["5","4","6","8"],"answer":0,"exp":"Olimpiyat sembolü birbirine geçen beş halkadan oluşur.","id":40,"week":"Oyunlar"},{"q":"Hentbolda kaleci dahil bir takımın sahada kaç oyuncusu bulunur?","options":["7","6","8","11"],"answer":0,"exp":"Standart salon hentbolunda sahada takım başına yedi oyuncu bulunur.","id":41,"week":"Oyunlar"},{"q":"Super Mario oyunlarında Mario genellikle hangi meslekle tanınır?","options":["Tesisatçı","Astronot","Doktor","Pilot"],"answer":0,"exp":"Mario, Nintendo oyunlarında tesisatçı olarak tanıtılır.","id":42,"week":"Oyunlar"},{"q":"Minecraft oyununda oyuncular dünyayı çoğunlukla hangi yapı birimleriyle değiştirir?","options":["Bloklarla","Yapboz parçalarıyla","Kartlarla","Altıgen taşlarla"],"answer":0,"exp":"Minecraft dünyası çeşitli türlerdeki bloklardan oluşur.","id":43,"week":"Oyunlar"},{"q":"Tetris oyununda temel amaç nedir?","options":["Düşen parçalarla yatay sıraları tamamlamak","Bir kaleyi savunmak","Yarış arabası sürmek","Kelime yazmak"],"answer":0,"exp":"Tetriste tamamlanan yatay sıralar temizlenir.","id":44,"week":"Oyunlar"},{"q":"Pac-Man oyununda oyuncu labirentte ne toplamaya çalışır?","options":["Noktaları","Satranç taşlarını","Yarış bayraklarını","Domino taşlarını"],"answer":0,"exp":"Pac-Man labirentteki noktaları yemeye çalışır.","id":45,"week":"Oyunlar"},{"q":"Pokémon oyunlarında oyuncunun topladığı ve eğittiği canlılara ne ad verilir?","options":["Pokémon","Tetromino","Piyon","Mii"],"answer":0,"exp":"Serinin merkezinde Pokémon adı verilen canlılar yer alır.","id":46,"week":"Oyunlar"},{"q":"The Legend of Zelda serisinde oyuncunun genellikle yönettiği kahraman kimdir?","options":["Link","Zelda","Bowser","Sonic"],"answer":0,"exp":"Serinin çoğu ana oyununda oynanabilir kahraman Linktir.","id":47,"week":"Oyunlar"},{"q":"Çevrim içi çok oyunculu oyunlarda ping genellikle neyi ölçer?","options":["Ağ gecikmesini","Ekran boyutunu","Depolama alanını","Hoparlör sesini"],"answer":0,"exp":"Ping, ağ üzerinden gidiş dönüş gecikmesi hakkında bilgi verir.","id":48,"week":"Oyunlar"},{"q":"Video oyunlarında FPS kısaltması performans bağlamında neyi ifade eder?","options":["Saniyedeki kare sayısını","Dosya boyutunu","Oyuncu sayısını","İnternet kotasını"],"answer":0,"exp":"FPS, frames per second yani saniyedeki kare sayısıdır.","id":49,"week":"Oyunlar"},{"q":"Kooperatif oyunlarda oyuncuların temel ilişkisi genellikle nasıldır?","options":["Ortak hedef için iş birliği yaparlar","Yalnızca birbirlerine karşı yarışırlar","Sadece sırayla zar atarlar","Hiçbir şekilde etkileşmezler"],"answer":0,"exp":"Kooperatif oyunlarda oyuncular ortak bir hedefe ulaşmak için birlikte çalışır.","id":50,"week":"Oyunlar"}],"health":[{"q":"Vücuda kan pompalayan organ hangisidir?","options":["Kalp","Karaciğer","Mide","Böbrek"],"answer":0,"exp":"Kalp, kasılarak kanı dolaşım sistemine pompalar.","id":1,"week":"Sağlık"},{"q":"Solunum sırasında oksijenin kana geçtiği yapı hangisidir?","options":["Yemek borusu","Alveoller","Gırtlak","Diyafram"],"answer":1,"exp":"Akciğerdeki alveollerde oksijen ve karbondioksit alışverişi gerçekleşir.","id":2,"week":"Sağlık"},{"q":"İnsan vücudunun en büyük organı hangisidir?","options":["Karaciğer","Kalp","Deri","Mide"],"answer":2,"exp":"Deri, vücudu dış ortamdan ayıran en büyük organdır.","id":3,"week":"Sağlık"},{"q":"Yetişkin bir insanın kalbinde kaç odacık bulunur?","options":["İki","Üç","Beş","Dört"],"answer":3,"exp":"Kalpte iki kulakçık ve iki karıncık bulunur.","id":4,"week":"Sağlık"},{"q":"Kanın pıhtılaşmasında önemli rol oynayan hücre parçacıkları hangileridir?","options":["Trombositler","Alyuvarlar","Nöronlar","Kas hücreleri"],"answer":0,"exp":"Trombositler kanamanın durdurulmasına katkı sağlar.","id":5,"week":"Sağlık"},{"q":"Kandaki oksijenin büyük bölümünü hangi molekül taşır?","options":["İnsülin","Hemoglobin","Melanin","Keratin"],"answer":1,"exp":"Alyuvarlardaki hemoglobin oksijen taşır.","id":6,"week":"Sağlık"},{"q":"Besinlerin sindirimi hangi organda başlar?","options":["Mide","İnce bağırsak","Ağız","Kalın bağırsak"],"answer":2,"exp":"Sindirimin ilk aşamaları ağızda çiğneme ve tükürükle başlar.","id":7,"week":"Sağlık"},{"q":"Besinlerden emilen maddelerin kana geçişinin büyük bölümü nerede gerçekleşir?","options":["Yemek borusu","Kalın bağırsak","Mide","İnce bağırsak"],"answer":3,"exp":"Sindirilmiş besinlerin çoğu ince bağırsakta emilir.","id":8,"week":"Sağlık"},{"q":"İdrar oluşturarak kandaki atıkların uzaklaştırılmasına yardımcı olan organ hangisidir?","options":["Böbrek","Dalak","Pankreas","Akciğer"],"answer":0,"exp":"Böbrekler kanı süzer ve idrar oluşturur.","id":9,"week":"Sağlık"},{"q":"Kemiklerin birbirine bağlandığı hareketli ya da hareketsiz bölgelere ne ad verilir?","options":["Tendon","Eklem","Sinir","Damar"],"answer":1,"exp":"Eklemler kemiklerin birleştiği noktalardır.","id":10,"week":"Sağlık"},{"q":"Kasları kemiklere bağlayan yapı hangisidir?","options":["Bağ","Kıkırdak","Tendon","Atardamar"],"answer":2,"exp":"Tendonlar kasları kemiklere bağlar.","id":11,"week":"Sağlık"},{"q":"Sinir sisteminin temel işlevsel hücresi hangisidir?","options":["Trombosit","Alyuvar","Osteosit","Nöron"],"answer":3,"exp":"Nöronlar sinirsel bilgiyi ileten hücrelerdir.","id":12,"week":"Sağlık"},{"q":"Görme duyusuyla doğrudan ilişkili organ hangisidir?","options":["Göz","Kulak","Burun","Dil"],"answer":0,"exp":"Göz ışığı algılayarak görmeye katkıda bulunur.","id":13,"week":"Sağlık"},{"q":"İşitme duyusuyla ilişkili organ hangisidir?","options":["Burun","Kulak","Göz","Deri"],"answer":1,"exp":"Kulak sesleri algılayan yapıların bulunduğu organdır.","id":14,"week":"Sağlık"},{"q":"Beyni çevreleyerek koruyan kemik yapı hangisidir?","options":["Omurga","Kaburga","Kafatası","Leğen kemiği"],"answer":2,"exp":"Kafatası beyni çevreleyen kemiklerden oluşur.","id":15,"week":"Sağlık"},{"q":"Omuriliği çevreleyip koruyan yapı hangisidir?","options":["Göğüs kemiği","Çene","Kürek kemiği","Omurga"],"answer":3,"exp":"Omurların oluşturduğu omurga, omuriliği korur.","id":16,"week":"Sağlık"},{"q":"Kanı kalpten uzaklaştıran damarlara ne ad verilir?","options":["Atardamar","Toplardamar","Lenf düğümü","Sinir"],"answer":0,"exp":"Atardamarlar kanı kalpten vücuda veya akciğerlere taşır.","id":17,"week":"Sağlık"},{"q":"Hangi organ insülin hormonu üretir?","options":["Dalak","Pankreas","Safra kesesi","Yemek borusu"],"answer":1,"exp":"Pankreasın belirli hücreleri insülin üretir.","id":18,"week":"Sağlık"},{"q":"İskeletin temel görevlerinden biri hangisidir?","options":["Besinleri sindirmek","Kanı pompalamak","Vücuda destek sağlamak","Sesleri algılamak"],"answer":2,"exp":"İskelet vücuda destek sağlar ve bazı organları korur.","id":19,"week":"Sağlık"},{"q":"Dişleri sert dış yüzeyinde örten doku hangisidir?","options":["Dentin","Diş eti","Pulpa","Mine"],"answer":3,"exp":"Mine, dişin görünen bölümünü örten sert dokudur.","id":20,"week":"Sağlık"},{"q":"Soluk alıp vermede önemli rol oynayan, göğüs ve karın boşluğunu ayıran kas hangisidir?","options":["Diyafram","Pazı","Dil","Kalp kası"],"answer":0,"exp":"Diyafram kasılıp gevşeyerek solunuma yardımcı olur.","id":21,"week":"Sağlık"},{"q":"Bağışıklık sisteminin temel görevlerinden biri hangisidir?","options":["Besinleri öğütmek","Vücudu enfeksiyonlara karşı savunmak","Kemikleri hareket ettirmek","Işığı algılamak"],"answer":1,"exp":"Bağışıklık sistemi mikroplara karşı savunmaya yardımcı olur.","id":22,"week":"Sağlık"},{"q":"Gözün renkli bölümüne ne ad verilir?","options":["Retina","Kornea","İris","Göz kapağı"],"answer":2,"exp":"İris göz bebeğini çevreleyen renkli bölümdür.","id":23,"week":"Sağlık"},{"q":"Tat tomurcuklarının büyük bölümü hangi organda bulunur?","options":["Burun","Damak","Kulak","Dil"],"answer":3,"exp":"Tat tomurcuklarının çoğu dilde yer alır.","id":24,"week":"Sağlık"},{"q":"Kanda enfeksiyonlara karşı savunmada önemli rol oynayan hücreler hangileridir?","options":["Akyuvarlar","Alyuvarlar","Trombositler","Yağ hücreleri"],"answer":0,"exp":"Akyuvarlar bağışıklık savunmasının önemli bir parçasıdır.","id":25,"week":"Sağlık"},{"q":"Safra sıvısını üreten organ hangisidir?","options":["Karaciğer","Mide","Böbrek","Dalak"],"answer":0,"exp":"Safra karaciğerde üretilir ve safra kesesinde depolanabilir.","id":26,"week":"Sağlık"},{"q":"Soluk alırken havanın büyük bölümünü doldurduğu organ hangisidir?","options":["Karaciğer","Akciğerler","Böbrekler","Pankreas"],"answer":1,"exp":"Akciğerler, solunumda hava ile kan arasında gaz alışverişi yapılmasını sağlar.","id":27,"week":"Sağlık"},{"q":"Böbreklerde süzme işleminin gerçekleştiği temel işlevsel birime ne ad verilir?","options":["Nefron","Nöron","Alveol","Tendon"],"answer":0,"exp":"Nefron böbreğin süzme ve idrar oluşturmayla ilişkili temel birimidir.","id":28,"week":"Sağlık"},{"q":"Omuz ile dirsek arasında bulunan uzun kemik hangisidir?","options":["Uyluk kemiği","Pazu kemiği","Kaval kemiği","Köprücük kemiği"],"answer":1,"exp":"Pazu kemiği üst kolda omuz ile dirsek arasında yer alır.","id":29,"week":"Sağlık"},{"q":"Tükürükte bulunan amilaz enzimi hangi besin öğesinin sindirimini başlatır?","options":["Nişasta","Mineral","Su","Vitamin"],"answer":0,"exp":"Tükürük amilazı nişastanın parçalanmasını ağızda başlatır.","id":30,"week":"Sağlık"},{"q":"Deride melanin pigmenti başlıca hangi özelliği etkiler?","options":["Deri rengini","Kemik sayısını","Kan grubunu","Diş sayısını"],"answer":0,"exp":"Melanin deri rengine katkıda bulunan bir pigmenttir.","id":31,"week":"Sağlık"},{"q":"Oksijeni kanda taşıyan hücreler hangileridir?","options":["Alyuvarlar","Trombositler","Sinir hücreleri","Kemik hücreleri"],"answer":0,"exp":"Alyuvarlardaki hemoglobin oksijenin taşınmasını sağlar.","id":32,"week":"Sağlık"},{"q":"Kan gruplandırmasında yaygın olarak kullanılan iki sistem hangisidir?","options":["ABO ve Rh","DNA ve RNA","EKG ve EEG","BMI ve BMR"],"answer":0,"exp":"ABO ve Rh kan grubu sistemleri kan uyumunun değerlendirilmesinde kullanılır.","id":33,"week":"Sağlık"},{"q":"Eklemler vücutta ne sağlar?","options":["Kemiklerin hareket edebilmesini","Kanın üretilmesini","Havanın temizlenmesini","Besinlerin emilmesini"],"answer":0,"exp":"Eklemler kemiklerin birleştiği ve türüne göre harekete izin veren yapılardır.","id":34,"week":"Sağlık"},{"q":"Dişleri fırçalamak en doğrudan hangi amaca yardımcı olur?","options":["Diş plağını uzaklaştırmaya","Kemikleri uzatmaya","Gözleri korumaya","İşitmeyi geliştirmeye"],"answer":0,"exp":"Diş fırçalama diş yüzeylerindeki plağın uzaklaştırılmasına yardımcı olur.","id":35,"week":"Sağlık"},{"q":"Gözün ışığı algılayan tabakası hangisidir?","options":["Retina","Diş minesi","Kulak zarı","Diyafram"],"answer":0,"exp":"Retina ışığı algılayan hücreleri içerir.","id":36,"week":"Sağlık"},{"q":"İç kulakta işitmenin yanı sıra hangi duyuyla ilgili yapılar bulunur?","options":["Denge","Tat","Koku","Görme"],"answer":0,"exp":"İç kulaktaki vestibüler sistem dengeye ilişkin bilgilerin algılanmasına yardımcı olur.","id":37,"week":"Sağlık"},{"q":"Kasların iskeletle birlikte temel işlevlerinden biri nedir?","options":["Hareket sağlamak","İdrar depolamak","Safra üretmek","Işığı algılamak"],"answer":0,"exp":"İskelet kasları kemiklere bağlıdır ve kasılarak hareket sağlar.","id":38,"week":"Sağlık"},{"q":"Kalın bağırsağın görevlerinden biri hangisidir?","options":["Suyun geri emilmesine yardımcı olmak","Kanın oksijenlenmesini sağlamak","İnsülin üretmek","Ses titreşimlerini algılamak"],"answer":0,"exp":"Kalın bağırsak sindirim artıklarından su ve bazı elektrolitlerin geri emilimine katkıda bulunur.","id":39,"week":"Sağlık"},{"q":"Kaburgaların koruduğu organlardan biri hangisidir?","options":["Akciğer","Mesane","Diz kapağı","Ayak bileği"],"answer":0,"exp":"Göğüs kafesi akciğerleri ve kalbi korumaya yardımcı olur.","id":40,"week":"Sağlık"},{"q":"Nabız çoğunlukla neyi gösterir?","options":["Kalp atımlarının damarlarda hissedilmesini","Akciğer hacmini","Mide sıcaklığını","Kemik uzunluğunu"],"answer":0,"exp":"Nabız, kalbin pompalamasıyla atardamarlarda oluşan basınç dalgasının hissedilmesidir.","id":41,"week":"Sağlık"},{"q":"Vücudun susuz kalmasını önlemeye yardımcı olan günlük alışkanlık hangisidir?","options":["Yeterli sıvı tüketmek","Öğünlerin tümünü atlamak","Sürekli uykusuz kalmak","Diş fırçalamamak"],"answer":0,"exp":"Yeterli sıvı tüketimi vücudun sıvı dengesinin korunmasına yardımcı olur.","id":42,"week":"Sağlık"},{"q":"İskelette uyluk kemiği hangi bölgede bulunur?","options":["Üst bacakta","Ön kolda","Boyunda","Göğüste"],"answer":0,"exp":"Uyluk kemiği kalça ile diz arasında yer alır.","id":43,"week":"Sağlık"},{"q":"Omurganın doğal eğrilikleri neye katkıda bulunur?","options":["Denge ve yüklerin dağıtılmasına","Tat algısına","Kan grubu oluşumuna","Diş minesinin üretimine"],"answer":0,"exp":"Omurganın doğal eğrilikleri duruşa, dengeye ve yüklerin dağılımına yardımcı olur.","id":44,"week":"Sağlık"},{"q":"Mikropların yayılmasını azaltmaya yardımcı olan davranış hangisidir?","options":["Elleri sabun ve suyla yıkamak","Ortak bardak kullanmak","Kirli ellerle yiyeceğe dokunmak","Öksürürken ağzı açık bırakmak"],"answer":0,"exp":"Elleri sabun ve suyla yıkamak mikropların yayılmasını azaltmaya yardımcı olur.","id":45,"week":"Sağlık"},{"q":"Kılcal damarların temel özelliği nedir?","options":["Kan ve dokular arasında madde alışverişine olanak sağlarlar","Yalnızca havayı taşırlar","Kemik dokusu üretirler","Midedeki besinleri parçalarlar"],"answer":0,"exp":"İnce duvarlı kılcal damarlar kan ile dokular arasında gaz ve madde alışverişini sağlar.","id":46,"week":"Sağlık"},{"q":"Beynin temel görevlerinden biri hangisidir?","options":["Vücut faaliyetlerini düzenlemeye yardımcı olmak","İdrarı depolamak","Besinleri doğrudan emmek","Kanı süzerek idrar oluşturmak"],"answer":0,"exp":"Beyin duyuları, düşünmeyi ve birçok vücut faaliyetini yönetir.","id":47,"week":"Sağlık"},{"q":"Hangi besin öğesi vücudun dokularını oluşturması ve onarması için önemlidir?","options":["Protein","Karbonhidrat","Yağ","Su"],"answer":0,"exp":"Proteinler vücut dokularının yapımı ve onarımında görev alır.","id":48,"week":"Sağlık"},{"q":"İdrar vücuttan atılmadan önce hangi organda depolanır?","options":["Mesane","Mide","Dalak","Safra kesesi"],"answer":0,"exp":"Böbreklerde oluşan idrar atılana kadar mesanede birikir.","id":49,"week":"Sağlık"},{"q":"Pankreasın ürettiği insülinin temel görevi nedir?","options":["Kan şekeri düzeyinin düzenlenmesine yardımcı olmak","Ses oluşumunu sağlamak","Kemikleri hareket ettirmek","Işığı algılamak"],"answer":0,"exp":"İnsülin, glikozun hücrelere alınmasına yardımcı olarak kan şekeri düzenlenmesinde rol oynar.","id":50,"week":"Sağlık"}],"computer":[{"q":"Bilgisayarın işlemleri yürüten temel bileşeni hangisidir?","options":["İşlemci","Monitör","Klavye","Hoparlör"],"answer":0,"exp":"İşlemci komutları çalıştırır ve hesaplama işlemlerini yürütür.","id":1,"week":"Bilgisayar"},{"q":"RAM’in temel görevi nedir?","options":["Belgeleri kalıcı olarak yazdırmak","Çalışan programların kullandığı verileri geçici tutmak","İnternet bağlantısını kablolu dağıtmak","Ekrana ses aktarmak"],"answer":1,"exp":"RAM, çalışan programlar ve veriler için geçici çalışma alanı sağlar.","id":2,"week":"Bilgisayar"},{"q":"Aşağıdakilerden hangisi bir giriş aygıtıdır?","options":["Monitör","Yazıcı","Klavye","Hoparlör"],"answer":2,"exp":"Klavye kullanıcıdan bilgisayara veri girilmesini sağlar.","id":3,"week":"Bilgisayar"},{"q":"Aşağıdakilerden hangisi bir çıkış aygıtıdır?","options":["Mikrofon","Fare","Tarayıcı","Monitör"],"answer":3,"exp":"Monitör bilgisayarın ürettiği görüntüyü kullanıcıya gösterir.","id":4,"week":"Bilgisayar"},{"q":"Bir dosyanın adındaki uzantı genellikle neyi belirtir?","options":["Dosya türünü","Dosyanın fiziksel ağırlığını","Bilgisayarın şarjını","Ekran parlaklığını"],"answer":0,"exp":"Uzantı dosya biçimine veya türüne dair bilgi verir.","id":5,"week":"Bilgisayar"},{"q":"İkili sayı sisteminde hangi rakamlar kullanılır?","options":["1 ve 2","0 ve 1","0 ile 9 arası","2 ve 8"],"answer":1,"exp":"İkili sistem yalnızca 0 ve 1 rakamlarını kullanır.","id":6,"week":"Bilgisayar"},{"q":"Bir bayt genellikle kaç bitten oluşur?","options":["10","2","8","16"],"answer":2,"exp":"Bir bayt genel olarak 8 bitten oluşur.","id":7,"week":"Bilgisayar"},{"q":"İşletim sisteminin görevlerinden biri hangisidir?","options":["İnternet kablosunu onarmak","Sadece metin yazmak","Yalnızca ekranı temizlemek","Donanım kaynaklarını ve uygulamaları yönetmek"],"answer":3,"exp":"İşletim sistemi donanım kaynaklarını yönetir ve uygulamaların çalışmasına aracılık eder.","id":8,"week":"Bilgisayar"},{"q":"Aşağıdakilerden hangisi bir işletim sistemidir?","options":["Linux","HTML","USB","JPEG"],"answer":0,"exp":"Linux bir işletim sistemi ailesidir.","id":9,"week":"Bilgisayar"},{"q":"Web sitelerini görüntülemek için kullanılan yazılım türü hangisidir?","options":["Hesap makinesi","Web tarayıcısı","Dosya sıkıştırıcı","Metin yazdırıcısı"],"answer":1,"exp":"Web tarayıcıları web sayfalarını getirir ve görüntüler.","id":10,"week":"Bilgisayar"},{"q":"URL neyi ifade eder?","options":["Yazıcının mürekkep miktarını","Bilgisayarın ekran boyutunu","İnternetteki bir kaynağın adresini","İşlemcinin fiziksel şeklini"],"answer":2,"exp":"URL web üzerindeki bir kaynağın adresini belirtir.","id":11,"week":"Bilgisayar"},{"q":"HTTPS bağlantısında kullanılan TLS ne sağlar?","options":["Dosyaları otomatik siler","Ekranın çözünürlüğünü artırır","Klavyeyi kablosuz yapar","İletişimin şifrelenmesine yardımcı olur"],"answer":3,"exp":"TLS iletişim sırasında verilerin korunmasına yardımcı olur.","id":12,"week":"Bilgisayar"},{"q":"Bilgisayar dosyalarını yedeklemek neden yararlıdır?","options":["Veri kaybı durumunda bir kopyadan geri yüklemeye yardımcı olur","İşlemciyi fiziksel olarak büyütür","Monitörü dokunmatik yapar","İnternet adresini değiştirir"],"answer":0,"exp":"Yedek, özgün dosya kaybolur veya bozulursa geri yükleme olanağı sağlar.","id":13,"week":"Bilgisayar"},{"q":"Kimlik avı girişiminin yaygın amacı nedir?","options":["Bilgisayarın fanını temizlemek","Kullanıcıyı kandırıp gizli bilgilerini almak","Ekran boyutunu ölçmek","Yazıcıya kâğıt yerleştirmek"],"answer":1,"exp":"Kimlik avı mesajları kullanıcıyı aldatıp parola veya benzeri bilgileri ele geçirmeyi amaçlar.","id":14,"week":"Bilgisayar"},{"q":"Güçlü bir parolanın özelliği hangisidir?","options":["Herkesle paylaşılması","Kullanıcı adıyla aynı olması","Uzun, tahmin edilmesi zor ve hesaba özgü olması","Sadece 1234 rakamlarından oluşması"],"answer":2,"exp":"Uzun ve her hesaba özgü parolalar tahmin ve yeniden kullanım riskini azaltır.","id":15,"week":"Bilgisayar"},{"q":"İki aşamalı doğrulamanın amacı nedir?","options":["Ekranı iki parçaya bölmek","İki monitörü tek kabloya bağlamak","Dosyayı iki kez yazdırmak","Parolaya ek bir doğrulama adımı kullanmak"],"answer":3,"exp":"İki aşamalı doğrulama, oturum açarken ek bir doğrulama yöntemi ister.","id":16,"week":"Bilgisayar"},{"q":"Bir klasörün temel kullanım amacı nedir?","options":["Dosya ve alt klasörleri düzenlemek","İşlemcinin hızını ölçmek","İnternet sinyali üretmek","Ekran görüntüsünü büyütmek"],"answer":0,"exp":"Klasörler dosyaları ve alt klasörleri düzenlemek için kullanılır.","id":17,"week":"Bilgisayar"},{"q":"Bir elektronik tabloda hücre nedir?","options":["Yalnızca bir grafik türü","Satır ve sütunun kesişimi","Dosyanın yazıcı kablosu","İnternet tarayıcısı sekmesi"],"answer":1,"exp":"Hücre bir satır ile bir sütunun kesiştiği alandır.","id":18,"week":"Bilgisayar"},{"q":"SSD’nin temel işlevi nedir?","options":["Görüntüyü projeksiyona yansıtmak","Ses kaydetmek","Verileri kalıcı olarak depolamak","Kablosuz fareyi şarj etmek"],"answer":2,"exp":"SSD, verilerin kalıcı saklanmasında kullanılan bir depolama aygıtıdır.","id":19,"week":"Bilgisayar"},{"q":"Bir uygulamanın güncellenmesi hangi amaçla yapılabilir?","options":["Priz voltajını yükseltmek","Ekranın fiziksel boyunu uzatmak","Klavyeye yeni tuş eklemek","Hata ve güvenlik açıklarını gidermek"],"answer":3,"exp":"Güncellemeler hata düzeltmeleri ve güvenlik iyileştirmeleri içerebilir.","id":20,"week":"Bilgisayar"},{"q":"Açık kaynak kodlu yazılım ne anlama gelir?","options":["Kaynak kodu belirli lisans koşullarıyla incelenebilen yazılım","İnternet olmadan hiç çalışmayan yazılım","Sadece ücretsiz donanım","Ekranı açık renk yapan yazılım"],"answer":0,"exp":"Açık kaynak yazılımların kaynak kodu ilgili lisans koşullarına göre incelenebilir ve kullanılabilir.","id":21,"week":"Bilgisayar"},{"q":"Algoritma nedir?","options":["Bilgisayar ekranındaki bir leke","Bir problemi çözmek için tanımlanan adımlar dizisi","Sadece bir kablo türü","Bir klasörün rengi"],"answer":1,"exp":"Algoritma bir görevi yerine getirmek veya problemi çözmek için izlenen adımlar dizisidir.","id":22,"week":"Bilgisayar"},{"q":"Bir programlama dilinde değişken ne için kullanılır?","options":["Klavye tuşlarını temizlemek","Ekranın fişini çekmek","Bir değeri saklamak veya ona başvurmak","Yazıcının kartuşunu doldurmak"],"answer":2,"exp":"Değişkenler programda kullanılan değerlere ad vermeye ve bu değerlerle işlem yapmaya yardımcı olur.","id":23,"week":"Bilgisayar"},{"q":"Yerel ağ (LAN) genellikle neyi birbirine bağlar?","options":["Bir bilgisayarın içindeki vidaları","Dünya üzerindeki tüm uyduları doğrudan","Yalnızca çevrimdışı yazıcıları","Ev veya ofis gibi sınırlı bir alandaki cihazları"],"answer":3,"exp":"LAN sınırlı bir alan içindeki cihazları birbirine bağlayan ağdır.","id":24,"week":"Bilgisayar"},{"q":"Bir bilgisayarın yeniden başlatılması ne anlama gelir?","options":["İşletim sisteminin kapatılıp tekrar başlatılması","Dosyaların tamamının silinmesi","Monitörün yenisiyle değiştirilmesi","İnternet kablosunun kesilmesi"],"answer":0,"exp":"Yeniden başlatma sistemi kapatıp tekrar çalıştırır; tek başına dosyaların silinmesi anlamına gelmez.","id":25,"week":"Bilgisayar"},{"q":"HTML bir web sayfasında öncelikle neyi tanımlar?","options":["İçeriğin yapısını","İnternet bağlantısının hızını","Bilgisayarın güç tüketimini","Dosyaların şifrelenmesini"],"answer":0,"exp":"HTML, sayfa içeriğini ve öğelerinin yapısını tanımlar.","id":26,"week":"Bilgisayar"},{"q":"CSS web sayfalarında hangi amaçla kullanılır?","options":["Veritabanı yedeklemek","Görünümü ve düzeni biçimlendirmek","İşlemciyi hızlandırmak","İnternet sağlayıcısını seçmek"],"answer":1,"exp":"CSS; renk, yazı tipi ve yerleşim gibi görsel özellikleri belirler.","id":27,"week":"Bilgisayar"},{"q":"Bir web adresindeki HTTPS kısaltmasındaki S neyi ifade eder?","options":["Secure, yani güvenli iletişim","Storage, yani depolama","Speed, yani hız","Search, yani arama"],"answer":0,"exp":"HTTPS, HTTP iletişimini TLS ile korur.","id":28,"week":"Bilgisayar"},{"q":"Bir web sayfasının adresindeki alan adı neyi tanımlamaya yardımcı olur?","options":["İnternetteki bir hizmetin veya kuruluşun adını","Ekranın köşegen uzunluğunu","Dosyanın depolama boyutunu","Klavyenin tuş sayısını"],"answer":0,"exp":"Alan adı, internetteki bir hizmete veya kuruluşa okunabilir bir adla ulaşmayı kolaylaştırır.","id":29,"week":"Bilgisayar"},{"q":"DNS sisteminin temel görevi nedir?","options":["Alan adlarını IP adreslerine çevirmek","Görüntüleri sıkıştırmak","Ekran parlaklığını ayarlamak","Pili şarj etmek"],"answer":0,"exp":"DNS, alan adları ile ilgili IP adresleri gibi bilgileri bulmaya yardımcı olur.","id":30,"week":"Bilgisayar"},{"q":"Bir web tarayıcısında yer imi ne işe yarar?","options":["Bir sayfanın adresini kolay erişim için saklar","Bilgisayarın belleğini artırır","Ekrandaki görüntüyü yazdırır","Tüm reklamları kesin olarak engeller"],"answer":0,"exp":"Yer imleri, web adreslerine daha sonra kolayca ulaşmayı sağlar.","id":31,"week":"Bilgisayar"},{"q":"Bir dosyanın sıkıştırılması hangi amaçla yapılabilir?","options":["Depolama veya aktarım için gereken alanı azaltmak","Monitörün çözünürlüğünü artırmak","İşlemcinin üreticisini değiştirmek","Elektrik kablosunu uzatmak"],"answer":0,"exp":"Sıkıştırma, dosya boyutunu azaltmaya yardımcı olabilir.","id":32,"week":"Bilgisayar"},{"q":"Bir piksel nedir?","options":["Dijital görüntüyü oluşturan en küçük görüntü öğelerinden biri","Bir ağ bağlantısı parolası","Bir işlemci fanı","Bir yazılım lisansı"],"answer":0,"exp":"Dijital görüntüler, piksel adı verilen küçük görüntü öğelerinden oluşur.","id":33,"week":"Bilgisayar"},{"q":"Ekran çözünürlüğü genellikle nasıl ifade edilir?","options":["Yatay ve dikey piksel sayısıyla","Yalnızca ses düzeyiyle","Pil yüzdesiyle","Dosya adı uzunluğuyla"],"answer":0,"exp":"Ekran çözünürlüğü, örneğin 1920 × 1080 gibi yatay ve dikey piksel sayısıyla belirtilir.","id":34,"week":"Bilgisayar"},{"q":"GPU hangi işlem türünde özellikle kullanılır?","options":["Grafik ve paralel işlemlerde","Yalnızca ses kaydında","Yalnızca yazıcı beslemede","Kağıt taramada"],"answer":0,"exp":"GPU grafik hesaplamaları ve çok sayıda paralel işlem için kullanılır.","id":35,"week":"Bilgisayar"},{"q":"USB bağlantısı yaygın olarak ne için kullanılır?","options":["Çevre birimlerini bağlamak ve veri aktarmak","Ekran çözünürlüğünü ölçmek","Kablosuz sinyalleri engellemek","Kağıdı yazdırmak"],"answer":0,"exp":"USB birçok çevre biriminde veri ve güç bağlantısı sağlar.","id":36,"week":"Bilgisayar"},{"q":"Programlamada koşul ifadesi ne sağlar?","options":["Bir koşula göre farklı işlemler yapılmasını","Bilgisayarın fiziksel olarak taşınmasını","Her durumda aynı kodun sonsuza kadar çalışmasını","Ekran boyutunun büyütülmesini"],"answer":0,"exp":"Koşul ifadeleri bir değerlendirmenin sonucuna göre farklı işlemler seçer.","id":37,"week":"Bilgisayar"},{"q":"Programlamada döngü hangi iş için kullanılır?","options":["İşlemleri tekrarlamak","Monitörü kapatmak","Dosya uzantısını değiştirmek","Yalnızca yazı tipini seçmek"],"answer":0,"exp":"Döngüler bir kod bölümünü belirli bir koşula veya sayıya göre tekrar çalıştırır.","id":38,"week":"Bilgisayar"},{"q":"Bir fonksiyonun temel yararlarından biri nedir?","options":["Tekrar kullanılabilen işlem grupları oluşturmak","Ekranın fiziksel boyutunu değiştirmek","İnternet kablosu olmadan tüm ağlara bağlanmak","Her türlü hatayı otomatik önlemek"],"answer":0,"exp":"Fonksiyonlar belirli bir işlemi gruplayıp gerektiğinde yeniden kullanmayı kolaylaştırır.","id":39,"week":"Bilgisayar"},{"q":"Bir kaynak kodundaki yorum satırının amacı genellikle nedir?","options":["Kodu açıklamak","İşlemcinin donanımını onarmak","Ekran kartını değiştirmek","Dosyaları fiziksel olarak taşımak"],"answer":0,"exp":"Yorumlar kodu okuyanlara açıklama sağlar ve normalde programın işlemi olarak yürütülmez.","id":40,"week":"Bilgisayar"},{"q":"Hata ayıklama ne anlama gelir?","options":["Programdaki sorunları bulup gidermeye çalışmak","Bilgisayarı fiziksel olarak temizlemek","Yalnızca yeni bir monitör almak","İnternette arama yapmak"],"answer":0,"exp":"Hata ayıklama, programdaki hataların nedenlerini bulma ve düzeltme sürecidir.","id":41,"week":"Bilgisayar"},{"q":"İşletim sisteminde dosyayı geri dönüşüm kutusuna taşımak genellikle ne sağlar?","options":["Dosyayı kalıcı silmeden önce geçici olarak tutar","Dosyayı otomatik şifreler","Dosyayı internetten yayımlar","Dosyayı yazdırır"],"answer":0,"exp":"Desteklenen sistemlerde dosyalar kalıcı silinmeden önce geri dönüşüm kutusunda tutulabilir.","id":42,"week":"Bilgisayar"},{"q":"Veritabanında tablo genellikle hangi öğelerden oluşur?","options":["Satırlar ve sütunlar","Yalnızca ses dosyaları","İşlemci ve fan","Piksel ve hoparlör"],"answer":0,"exp":"İlişkisel veritabanında tablolar satır ve sütunlarla verileri düzenler.","id":43,"week":"Bilgisayar"},{"q":"Bir veritabanı sorgusu genel olarak ne için kullanılır?","options":["Veriyi bulmak veya işlemek için","Donanımı fiziksel olarak değiştirmek için","Ekranı silmek için","Elektrik kesintisini önlemek için"],"answer":0,"exp":"Sorgular veritabanındaki verileri okumak veya uygun işlemlerle değiştirmek için kullanılabilir.","id":44,"week":"Bilgisayar"},{"q":"Bulut depolama neyi ifade eder?","options":["Dosyaların ağ üzerinden erişilen uzak sunucularda saklanmasını","Dosyaların yalnızca kağıda yazılmasını","İşlemcinin soğutulmasını","Ekranın gökyüzünü göstermesini"],"answer":0,"exp":"Bulut depolama, verileri ağ üzerinden erişilebilen uzak sistemlerde saklamayı sağlar.","id":45,"week":"Bilgisayar"},{"q":"Bir arşiv dosyası hangi amaçla kullanılabilir?","options":["Birden fazla dosyayı tek bir paket içinde toplamak","Monitörü bir yazıcıya dönüştürmek","Kablosuz sinyali fiziksel kabloya çevirmek","İşlemcinin çekirdeklerini değiştirmek"],"answer":0,"exp":"Arşiv biçimleri bir veya birden fazla dosyayı tek bir dosyada toplamaya yarar.","id":46,"week":"Bilgisayar"},{"q":"Bluetooth yaygın olarak hangi amaçla kullanılır?","options":["Yakın mesafede kablosuz bağlantı kurmak","Yalnızca elektrik üretmek","Ekranı temizlemek","Bir dosyayı kağıda basmak"],"answer":0,"exp":"Bluetooth yakın mesafeli kablosuz iletişim teknolojisidir.","id":47,"week":"Bilgisayar"},{"q":"Bir metin düzenleyicide geri al komutu genellikle ne yapar?","options":["Son yapılan düzenleme işlemini geri çevirir","Dosyayı yazıcıdan çıkarır","Bilgisayarı fabrika ayarlarına döndürür","Ağ kablosunu devre dışı bırakır"],"answer":0,"exp":"Geri al komutu, desteklenen uygulamalarda son düzenleme adımını geri çevirmeye yarar.","id":48,"week":"Bilgisayar"},{"q":"Bir kablosuz yerel ağa bağlanmada yaygın olarak hangi teknoloji kullanılır?","options":["Wi-Fi","HDMI","VGA","SATA"],"answer":0,"exp":"Wi-Fi, cihazların kablosuz yerel ağlara bağlanmasını sağlayan bir teknoloji ailesidir.","id":49,"week":"Bilgisayar"},{"q":"Bir ağdaki IP adresi genel olarak neyi tanımlamaya yardımcı olur?","options":["Ağdaki bir arayüzü","Yalnızca dosyanın yazı tipini","Monitörün fiziksel rengini","Klavyedeki tuş sayısını"],"answer":0,"exp":"IP adresi, ağ üzerinde bir arayüzün adreslenmesi ve veri yönlendirilmesi için kullanılır.","id":50,"week":"Bilgisayar"}]};
+    let QUESTIONS = [];
+    try {
+      const saved = JSON.parse(localStorage.getItem(QUESTION_STORAGE_KEY) || '[]');
+      if (Array.isArray(saved)) QUESTIONS = saved.filter(x => x && typeof x.q === 'string' && Array.isArray(x.options) && x.options.length >= 2 && x.options.length <= 5 && Number.isInteger(x.answer) && x.answer >= 0 && x.answer < x.options.length);
+    } catch (e) {}
 
     // =========================================================================
     // 2. WEB AUDIO API SES MOTORU
@@ -2176,7 +793,11 @@
       roomCode: '',
       playerName: 'Yarışmacı',
       timePerQuestion: 30,
-      questionCount: 20,
+      questionCount: 1,
+      category: 'manual',
+      advanceMode: 'manual',
+      advanceDelay: 5,
+      advanceTimer: null,
       quizQuestions: [],
       currentIndex: 0,
       score: 0,
@@ -2246,6 +867,7 @@
         tab.classList.toggle('active', m === mode);
       });
 
+      document.getElementById('host-game-modes').classList.toggle('hidden', mode !== 'host');
       const joinBox = document.getElementById('join-code-box');
       const settingsBox = document.getElementById('game-settings-box');
       const actionText = document.getElementById('btn-lobby-action-text');
@@ -2254,7 +876,7 @@
       if (mode === 'solo') {
         joinBox.classList.add('hidden');
         settingsBox.classList.remove('hidden');
-        actionText.textContent = `OYUNA BAŞLA (Rastgele ${state.questionCount} Soru)`;
+        actionText.textContent = 'OYUNA BAŞLA';
         actionIcon.textContent = '🚀';
       } else if (mode === 'host') {
         joinBox.classList.add('hidden');
@@ -2269,6 +891,14 @@
       }
     }
 
+    function updateGameMode() {
+      state.advanceMode = document.getElementById('advance-mode').value === 'auto' ? 'auto' : 'manual';
+      const input = document.getElementById('advance-delay');
+      state.advanceDelay = Math.max(1, Math.min(120, Math.floor(Number(input.value)) || 5));
+      input.value = state.advanceDelay;
+      document.getElementById('advance-delay-box').classList.toggle('hidden', state.advanceMode !== 'auto');
+    }
+
     function selectTime(seconds) {
       SoundFX.click();
       state.timePerQuestion = seconds;
@@ -2277,16 +907,67 @@
       });
     }
 
-    function selectQCount(count) {
-      SoundFX.click();
-      state.questionCount = count;
-      document.querySelectorAll('.qcount-pill').forEach(btn => {
-        btn.classList.toggle('active', Number(btn.dataset.qcount) === count);
-      });
-      if (state.lobbyMode === 'solo') {
-        document.getElementById('btn-lobby-action-text').textContent = `OYUNA BAŞLA (Rastgele ${count} Soru)`;
-      }
+    function selectedQuestionPool() {
+      return state.category === 'manual' ? QUESTIONS : (BUILT_IN_QUESTIONS[state.category] || []);
     }
+    function changeCategory() {
+      state.category = document.getElementById('question-category').value;
+      state.questionCount = Math.min(20, Math.max(1, selectedQuestionPool().length));
+      renderQuestionPool();
+    }
+    function shuffleQuestionOptions(question) {
+      const shuffled = fisherYatesShuffle(question.options.map((text, index) => ({ text, correct: index === question.answer })));
+      return { ...question, options: shuffled.map(option => option.text), answer: shuffled.findIndex(option => option.correct) };
+    }
+    function selectQCount(count) {
+      const parsed = Number(count);
+      state.questionCount = Math.max(1, Math.min(selectedQuestionPool().length || 1, Number.isFinite(parsed) ? Math.floor(parsed) || 1 : 1));
+      document.getElementById('question-count').value = state.questionCount;
+    }
+    function renderQuestionPool() {
+      const poolSize = selectedQuestionPool().length;
+      document.getElementById('pool-count').textContent = '📚 Seçili havuz: ' + poolSize + ' Soru';
+      document.getElementById('header-pool-count').textContent = poolSize;
+      document.getElementById('question-count').max = Math.max(1, poolSize);
+      selectQCount(state.questionCount);
+      const list = document.getElementById('question-list');
+      list.replaceChildren();
+      if (!QUESTIONS.length) { list.textContent = 'Henüz soru eklenmedi.'; return; }
+      QUESTIONS.forEach((question, index) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2 rounded-xl bg-white border border-purple-100 p-3';
+        const title = document.createElement('span');
+        title.className = 'flex-1 text-sm font-semibold break-words min-w-0';
+        title.textContent = (index + 1) + '. ' + question.q;
+        const remove = document.createElement('button');
+        remove.type = 'button'; remove.className = 'text-sm font-bold text-rose-700 px-2 py-1'; remove.textContent = 'Sil';
+        remove.setAttribute('aria-label', (index + 1) + '. soruyu sil');
+        remove.onclick = () => { const updated = QUESTIONS.filter((_, i) => i !== index); if (saveQuestions(updated)) { QUESTIONS = updated; renderQuestionPool(); } };
+        row.append(title, remove); list.appendChild(row);
+      });
+    }
+    function saveQuestions(questions) {
+      try { localStorage.setItem(QUESTION_STORAGE_KEY, JSON.stringify(questions)); return true; }
+      catch (e) { showToast('Sorular kaydedilemedi. Tarayıcı depolamasını kontrol edin.'); return false; }
+    }
+    document.getElementById('question-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const error = document.getElementById('question-form-error');
+      const q = document.getElementById('new-question').value.trim();
+      const inputs = [...document.querySelectorAll('.question-option')].map(input => input.value.trim());
+      const answer = Number(document.getElementById('new-answer').value);
+      if (!q || !inputs[0] || !inputs[1] || !inputs[answer] || inputs.some((value, i) => value && i > 0 && !inputs[i - 1])) {
+        error.textContent = 'Soruyu ve en az A ile B şıklarını doldurun. Şıkları sırayla girin ve dolu bir doğru cevap seçin.'; error.classList.remove('hidden'); return;
+      }
+      error.classList.add('hidden');
+      const options = inputs.filter(Boolean);
+      const mappedAnswer = inputs.slice(0, answer).filter(Boolean).length;
+      const question = { id: Date.now() + Math.floor(Math.random() * 1000), week: 'Soru Havuzu', q, options, answer: mappedAnswer, exp: document.getElementById('new-explanation').value.trim() || 'Açıklama eklenmedi.' };
+      const updated = [...QUESTIONS, question];
+      if (!saveQuestions(updated)) return;
+      QUESTIONS = updated; event.target.reset(); renderQuestionPool(); showToast('Soru eklendi.');
+    });
+    renderQuestionPool();
 
     function switchScreen(screenId) {
       ['screen-lobby', 'screen-waiting', 'screen-quiz', 'screen-result'].forEach(id => {
@@ -2323,29 +1004,11 @@
       document.getElementById('custom-modal').classList.add('hidden');
     }
 
-    let countdownTimers = [];
-    function clearBigCountdown() {
-      countdownTimers.forEach(clearTimeout); countdownTimers = [];
-      document.getElementById('countdown-overlay').hidden = true;
-    }
-    function showBigCountdown(n) {
-      const overlay = document.getElementById('countdown-overlay');
-      const number = document.getElementById('countdown-number');
-      number.textContent = n; overlay.hidden = false;
-      number.style.animation = 'none'; void number.offsetWidth; number.style.animation = '';
-    }
-    function scheduleBigCountdown() {
-      clearBigCountdown();
-      countdownTimers.push(setTimeout(() => showBigCountdown(2), 3000));
-      countdownTimers.push(setTimeout(() => showBigCountdown(1), 4000));
-      countdownTimers.push(setTimeout(clearBigCountdown, 5000));
-    }
     function cleanupNetwork() {
-      clearBigCountdown();
       clearInterval(state.timerInterval);
       clearInterval(state.joinRetryTimer);
-      clearTimeout(state.autoNextTimer);
-      state.autoNextTimer = null;
+      clearTimeout(state.advanceTimer);
+      state.advanceTimer = null;
       state.joinRetryTimer = null;
       if (state.mqttClient) {
         if (state.mpRole === 'guest' && state.roomCode) {
@@ -2377,6 +1040,9 @@
       const rawName = document.getElementById('player-name').value.trim();
       state.playerName = rawName || (state.lobbyMode === 'host' ? 'Grup Kurucusu' : 'İSG Yarışmacısı');
 
+      if (state.lobbyMode !== 'join' && selectedQuestionPool().length === 0) { showLobbyError('Oyuna başlamadan önce en az bir soru ekleyin.'); return; }
+      selectQCount(document.getElementById('question-count').value);
+      updateGameMode();
       if (state.lobbyMode === 'solo') {
         state.mpRole = 'solo';
         startNewGame();
@@ -2597,8 +1263,8 @@
       document.getElementById('host-start-controls').classList.toggle('hidden', !isHost);
       document.getElementById('guest-wait-notice').classList.toggle('hidden', isHost);
 
-      const timeLabel = 'Herkes yanıtlayana kadar';
-      document.getElementById('waiting-settings-info').textContent = `${state.questionCount} Soru • Soru başına ${timeLabel}`;
+      const timeLabel = state.timePerQuestion === 0 ? 'Süresiz' : `${state.timePerQuestion} sn`;
+      document.getElementById('waiting-settings-info').textContent = `${({manual: 'Elle eklenen', games: 'Oyunlar', health: 'Sağlık', computer: 'Bilgisayar'})[state.category] || 'Soru havuzu'} • ${state.questionCount} Soru • Soru başına ${timeLabel} • ${state.advanceMode === 'auto' ? `Otomatik geçiş: ${state.advanceDelay} sn` : 'Kurucu geçişi'}`;
     }
 
     function copyRoomCode() {
@@ -2663,7 +1329,10 @@
         players: list,
         settings: {
           timePerQuestion: state.timePerQuestion,
-          questionCount: state.questionCount
+          questionCount: state.questionCount,
+          category: state.category,
+          advanceMode: state.advanceMode,
+          advanceDelay: state.advanceDelay
         }
       });
     }
@@ -2726,15 +1395,12 @@
         answeredCount,
         totalPlayers
       });
-      if (totalPlayers > 0 && answeredCount === totalPlayers && !state.autoNextTimer) {
-        const qIndex = state.currentIndex;
-        broadcastToGuests({ type: 'ALL_ANSWERED', qIndex });
-        scheduleBigCountdown();
-        document.getElementById('guest-next-wait').textContent = '✓ Herkes cevapladı. 5 saniye sonra devam ediliyor...';
-        state.autoNextTimer = setTimeout(() => {
-          state.autoNextTimer = null;
-          if (state.mpRole === 'host' && state.currentIndex === qIndex && Object.values(state.players).every(p => p.answeredCurrent)) nextQuestion(true);
-        }, 5000);
+      if (state.mpRole === 'host' && state.advanceMode === 'auto' && state.answered && totalPlayers > 0 && answeredCount === totalPlayers && !state.advanceTimer) {
+        const questionIndex = state.currentIndex;
+        state.advanceTimer = setTimeout(() => {
+          state.advanceTimer = null;
+          if (state.mpRole === 'host' && state.currentIndex === questionIndex && state.answered && !document.getElementById('screen-quiz').classList.contains('hidden')) nextQuestion();
+        }, state.advanceDelay * 1000);
       }
     }
 
@@ -2746,12 +1412,15 @@
         if (data.settings) {
           state.timePerQuestion = data.settings.timePerQuestion;
           state.questionCount = data.settings.questionCount;
-          const timeLabel = 'Herkes yanıtlayana kadar';
-          document.getElementById('waiting-settings-info').textContent = `${state.questionCount} Soru • Soru başına ${timeLabel}`;
+          state.category = data.settings.category || 'manual';
+          state.advanceMode = data.settings.advanceMode || 'manual';
+          state.advanceDelay = data.settings.advanceDelay || 5;
+          const timeLabel = state.timePerQuestion === 0 ? 'Süresiz' : `${state.timePerQuestion} sn`;
+          document.getElementById('waiting-settings-info').textContent = `${({manual: 'Elle eklenen', games: 'Oyunlar', health: 'Sağlık', computer: 'Bilgisayar'})[state.category] || 'Soru havuzu'} • ${state.questionCount} Soru • Soru başına ${timeLabel} • ${state.advanceMode === 'auto' ? `Otomatik geçiş: ${state.advanceDelay} sn` : 'Kurucu geçişi'}`;
         }
         renderWaitingPlayers();
       } else if (data.type === 'START_GAME') {
-        state.quizQuestions = data.questions || [];
+        state.quizQuestions = (data.questions || []).map(shuffleQuestionOptions);
         state.timePerQuestion = data.timePerQuestion;
         state.currentIndex = 0;
         state.score = 0;
@@ -2767,9 +1436,6 @@
         state.scoreboard = data.players || [];
         updateAnsweredBadge(data.answeredCount, data.totalPlayers);
         renderLiveMiniBoard();
-      } else if (data.type === 'ALL_ANSWERED' && data.qIndex === state.currentIndex) {
-        scheduleBigCountdown();
-        document.getElementById('guest-next-wait').textContent = '✓ Herkes cevapladı. 5 saniye sonra devam ediliyor...';
       } else if (data.type === 'NEXT_QUESTION') {
         if (data.qIndex === state.currentIndex) return;
         if (!state.answered) {
@@ -2790,7 +1456,6 @@
       const currentQ = state.quizQuestions[state.currentIndex];
       if (!currentQ) return;
       state.answered = true;
-      clearBigCountdown();
       clearInterval(state.timerInterval);
       state.wrongCount += 1;
       state.streak = 0;
@@ -2822,8 +1487,8 @@
 
     function hostStartMultiplayerGame() {
       if (state.mpRole !== 'host') return;
+      if (!selectedQuestionPool().length) { showToast('Oyuna başlamadan önce en az bir soru ekleyin.'); return; }
       SoundFX.click();
-      state.timePerQuestion = 0; // Grup oyununda herkesin cevap vermesi beklenir.
 
       Object.values(state.players).forEach(p => {
         p.score = 0;
@@ -2834,8 +1499,8 @@
         p.answeredCurrent = false;
       });
 
-      const pool = fisherYatesShuffle(QUESTIONS).slice(0, state.questionCount);
-      state.quizQuestions = pool;
+      const pool = fisherYatesShuffle(selectedQuestionPool()).slice(0, state.questionCount);
+      state.quizQuestions = pool.map(shuffleQuestionOptions);
       state.currentIndex = 0;
       state.score = 0;
       state.correctCount = 0;
@@ -2862,9 +1527,9 @@
     function startNewGame(customPool = null) {
       const pool = customPool && customPool.length > 0
         ? fisherYatesShuffle(customPool)
-        : fisherYatesShuffle(QUESTIONS).slice(0, state.questionCount);
+        : fisherYatesShuffle(selectedQuestionPool()).slice(0, state.questionCount);
 
-      state.quizQuestions = pool;
+      state.quizQuestions = pool.map(shuffleQuestionOptions);
       state.currentIndex = 0;
       state.score = 0;
       state.correctCount = 0;
@@ -2940,12 +1605,8 @@
     }
 
     function renderQuestion() {
-      clearBigCountdown();
       clearInterval(state.timerInterval);
       state.answered = false;
-      clearTimeout(state.autoNextTimer);
-      state.autoNextTimer = null;
-      document.getElementById('guest-next-wait').textContent = '⏳ Diğer oyuncuların cevapları bekleniyor...';
 
       if (state.mpRole === 'host') {
         Object.values(state.players).forEach(p => { p.answeredCurrent = false; });
@@ -3042,7 +1703,6 @@
         if (wholeSec !== lastWholeSecond) {
           lastWholeSecond = wholeSec;
           timerCircle.textContent = wholeSec;
-          if (wholeSec === 2 || wholeSec === 1) showBigCountdown(wholeSec);
           if (wholeSec <= 5 && wholeSec > 0) {
             timerCircle.classList.add('border-rose-400', 'text-rose-300');
             SoundFX.tick(true);
@@ -3174,7 +1834,7 @@
 
       fbExp.textContent = currentQ.exp;
 
-      if (state.mpRole !== 'solo') {
+      if (state.mpRole === 'guest') {
         nextBtn.classList.add('hidden');
         guestWait.classList.remove('hidden');
       } else {
@@ -3186,8 +1846,10 @@
       }
     }
 
-    function nextQuestion(automatic = false) {
-      if (state.mpRole === 'guest' || (state.mpRole === 'host' && automatic !== true)) return;
+    function nextQuestion() {
+      if (state.mpRole === 'guest') return;
+      clearTimeout(state.advanceTimer);
+      state.advanceTimer = null;
       SoundFX.click();
 
       if (state.currentIndex + 1 < state.quizQuestions.length) {
@@ -3469,7 +2131,7 @@
       if (!state.answered && key in map) {
         e.preventDefault();
         handleAnswer(map[key]);
-      } else if (state.answered && (e.key === 'Enter' || e.key === ' ') && state.mpRole === 'solo') {
+      } else if (state.answered && (e.key === 'Enter' || e.key === ' ') && state.mpRole !== 'guest') {
         e.preventDefault();
         nextQuestion();
       }
