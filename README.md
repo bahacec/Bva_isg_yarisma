@@ -2,6 +2,9 @@
 
 Bu proje, Manisa Celal Bayar Üniversitesi Büyük Veri Analistliği programındaki 1. sınıf öğrencileri için ders çalışmayı daha eğlenceli hâle getirmek amacıyla hazırlanmış HTML tabanlı bir bilgi yarışmasıdır. Öğrenciler test sorularını tek başına çözebilir veya ekip arkadaşlarıyla aynı oyun odasında yarışabilir.
 
+Sitemize Aşağıdaki Linkten Ulaşabilirsiniz.
+https://bahacec.github.io/Bva_isg_yarisma/
+
 ## Projenin amacı
 
 Ders konularını soru çözerek tekrar etmeyi, arkadaşlarla ekip hâlinde çalışmayı ve öğrenme sürecini oyunlaştırmayı destekler. Oyun, sınıf içi veya bireysel çalışma oturumlarında kullanılabilir.
