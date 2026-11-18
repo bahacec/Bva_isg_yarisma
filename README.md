@@ -11,7 +11,7 @@ Ders konularını soru çözerek tekrar etmeyi, arkadaşlarla ekip hâlinde çal
 
 ## Öne çıkan özellikler
 
-- 200 soruluk üretken yapay zekâ konu havuzu
+- Üretken yapay zekâ konu havuzu
 - Tek kişilik çalışma ve canlı grup oyunu
 - Oda kurma ve oda koduyla arkadaşların katılması
 - Rastgele soru sıralaması ve tur uzunluğu seçimi
