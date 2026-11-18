@@ -2,7 +2,7 @@
 
 **Quiz Arena**, herkesin bilgisini test edebileceği, tek başına pratik yapabileceği veya arkadaşlarıyla aynı oyun odasında canlı olarak yarışabileceği HTML tabanlı bir bilgi yarışmasıdır.
 
-Sitemize Aşağıdaki Linkten Ulaşabilirsiniz.
+Sitemize Linke Tıklayarak Ulaşabilirsiniz.
 https://bahacec.github.io/Quiz-Arena/
 
 ## Projenin Amacı
